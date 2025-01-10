@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>범죄 상황 예측 모니터링 및 신고 접수 현황 - 신고 접수 현황</title>
+    <link href="/css/Board.css" rel="stylesheet">
+    <script defer src="/js/Board.js"></script>
+</head>
+<body>
+<h1>신고 현황</h1>
+<p>여기에 신고 현황 데이터가 표시됩니다.</p>
+<table>
+    <thead>
+    <tr>
+        <th>접수 번호</th>
+        <th>신고 사유</th>
+        <th>신고자</th>
+        <th>신고처리 현황</th>
+        <th>작성일</th>
+        <th>상세 보기</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="post : ${reports}">
+        <td th:text="${post.id}"></td>
+        <td th:text="${post.content}"></td>
+        <td th:text="${post.reporter}"></td>
+        <td th:text="${post.formattedDate}"></td>
+        <td th:text="${post.processingStatus}"></td>
+        <td>
+            <!-- 상세 보기 버튼 클릭 시 비밀번호 모달 열기 -->
+            <button class="detail-button" th:attr="data-id=${post.id}">상세 보기</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 비밀번호 입력 모달 -->
+<div class="modal" id="password-modal" style="display: none;">
+    <div class="modal-container">
+        <span class="close-btn" onclick="closePasswordModal()">&times;</span>
+        <h2>비밀번호 확인</h2>
+        <p>열람용 비밀번호를 입력하세요:</p>
+        <input id="input-password" placeholder="비밀번호 입력" type="password">
+        <button onclick="validatePassword()">확인</button>
+    </div>
+</div>
+
+<!-- 상세 보기 모달 -->
+<div class="modal" id="detail-modal" style="display: none;">
+    <div class="modal-container">
+        <span class="close-btn" onclick="closeDetailModal()">&times;</span>
+        <h2>신고 상세 정보</h2>
+        <p><strong>접수 번호:</strong> <span id="modal-id"></span></p>
+        <p><strong>신고자:</strong> <span id="modal-reporter"></span></p>
+        <p><strong>연락처:</strong> <span id="modal-phone"></span></p>
+        <p><strong>신고 사유:</strong> <span id="modal-content"></span></p>
+        <p><strong>범죄 대분류:</strong> <span id="modal-category"></span></p>
+        <p><strong>범죄 소분류:</strong> <span id="modal-subcategory"></span></p>
+        <p><strong>범죄 발생 날짜:</strong> <span id="modal-date"></span></p>
+        <p><strong>범죄 발생 시간:</strong> <span id="modal-time"></span></p>
+        <p><strong>이미지/동영상 파일:</strong>
+            <a href="#" id="modal-file" target="_blank">보기</a>
+        </p>
+        <p><strong>작성일:</strong> <span id="modal-createDate"></span></p>
+        <p><strong>처리 상태:</strong> <span id="modal-status"></span></p>
+    </div>
+</div>
+</body>
+</html>

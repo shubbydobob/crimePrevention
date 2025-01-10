@@ -1,0 +1,586 @@
+/* 기본 스타일 설정 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #000000;
+}
+
+/* 헤더 스타일 */
+header {
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+header nav {
+    display: flex;
+    gap: 20px;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* 호버 효과 */
+header nav a:hover {
+    background-color: #26969c;
+    color: white;
+}
+
+
+/* 사진 공간 스타일 */
+.photo-section {
+    height: 300px;
+    background-color: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* 전체 레이아웃 설정 */
+.nav-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* 사진 영역 스타일 */
+.photo-section {
+
+    height: auto;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* 네비게이션 그리드 스타일 */
+.nav-grid {
+    flex: 2;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3열 구성 */
+    gap: 30px;
+}
+
+/* 네비게이션 아이템 스타일 */
+.nav-item {
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 배경색 엇갈리게 설정 */
+.nav-item:nth-child(odd) {
+    background-color: #fff;
+    color: #000;
+}
+
+.nav-item:nth-child(even) {
+    background-color: #26969c;
+    color: #fff;
+}
+
+ /* 아이콘 기본 스타일 */
+ .icon {
+    font-size: 50px;
+    margin-bottom: 8px;
+    animation: bounce 2s infinite; /* 평소 바운스 애니메이션 */
+    transition: transform 0.2s ease-in-out; /* 클릭 시 부드러운 확대 효과 */
+}
+  /* 텍스트 스타일 */
+  .nav-item p {
+    margin: 0;
+    font-size: 14px;
+}
+ /* 바운스 애니메이션 */
+ @keyframes bounce {
+    0%, 100% {
+        transform: translateY(0); /* 기본 위치 */
+    }
+    50% {
+        transform: translateY(-10px); /* 위로 이동 */
+    }
+}
+
+/* 랜덤한 애니메이션 지연 시간 */
+.nav-item:nth-child(1) .icon { animation-delay: 0s; }
+.nav-item:nth-child(2) .icon { animation-delay: 0.2s; }
+.nav-item:nth-child(3) .icon { animation-delay: 0.4s; }
+.nav-item:nth-child(4) .icon { animation-delay: 0.6s; }
+.nav-item:nth-child(5) .icon { animation-delay: 0.8s; }
+.nav-item:nth-child(6) .icon { animation-delay: 1s; }
+.nav-item:nth-child(7) .icon { animation-delay: 1.2s; }
+.nav-item:nth-child(8) .icon { animation-delay: 1.4s; }
+.nav-item:nth-child(9) .icon { animation-delay: 1.6s; }
+.nav-item:nth-child(10) .icon { animation-delay: 1.8s; }
+.nav-item:nth-child(11) .icon { animation-delay: 2s; }
+.nav-item:nth-child(12) .icon { animation-delay: 2.2s; }
+
+
+
+/* Hover 효과 */
+.nav-item:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+/* 범죄 상황 예측 모니터링 */
+.nav-link {
+    text-decoration: none; /* 밑줄 제거 */
+    display: flex; /* 아이콘과 텍스트를 정렬 */
+    flex-direction: column; /* 수직 배치 */
+    align-items: center; /* 가운데 정렬 */
+    color: black; /* 기본 글자 색 설정 */
+}
+
+
+/* 전체 모달 기본 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.modal-content .close {
+    color: black;
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.modal-content button {
+    padding: 10px 20px;
+    background-color: #26969c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.modal-content button:hover {
+    background-color: #ff4400;
+}
+
+
+/* 범죄자 모달 */
+.custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+.custom-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 80%; /* 넓이를 적절히 조정 */
+    max-width: 1200px;
+    max-height: 80%;
+    overflow-y: auto; /* 스크롤 가능 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.custom-modal-close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+/* 모달 스타일 */
+/* 헤더 스타일 */
+.custom-header {
+    background-color: #222; /* 어두운 배경 */
+    color: #fff; /* 텍스트 색상 */
+    padding: 15px 20px;
+    position: sticky; /* 스크롤 시 상단에 고정 */
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 살짝 그림자 효과 */
+}
+
+/* 헤더 컨테이너 */
+.header-container {
+    display: flex;
+    justify-content: space-between; /* 제목과 네비게이션 양쪽 배치 */
+    align-items: center;
+    max-width: 1200px; /* 최대 너비 설정 */
+    margin: 0 auto; /* 가운데 정렬 */
+}
+
+/* 헤더 제목 */
+.header-title {
+    font-size: 20px; /* 제목 크기 */
+    font-weight: bold; /* 굵은 텍스트 */
+    margin: 0; /* 여백 제거 */
+}
+
+/* 네비게이션 스타일 */
+.header-nav {
+    display: flex;
+    gap: 15px; /* 메뉴 간격 */
+}
+
+.header-nav a {
+    color: #fff; /* 텍스트 흰색 */
+    text-decoration: none; /* 밑줄 제거 */
+    font-size: 14px; /* 텍스트 크기 */
+    font-weight: bold;
+    padding: 8px 12px; /* 버튼 여백 */
+    border-radius: 5px; /* 둥근 모서리 */
+    transition: background-color 0.3s, color 0.3s; /* 부드러운 효과 */
+}
+
+/* 링크 호버 효과 */
+.header-nav a:hover {
+    background-color: #007bff; /* 파란색 배경 */
+    color: #fff; /* 텍스트 흰색 유지 */
+}
+
+
+.custom-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.custom-modal-close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* 지역 버튼 스타일 */
+.region-links a {
+    display: inline-block;
+    margin: 10px; /* 버튼 간격 확대 */
+    padding: 10px 20px; /* 버튼 크기 확대 */
+    background-color: #26969c;
+    color: white;
+    text-decoration: none;
+    font-size: 16px; /* 글씨 크기 확대 */
+    font-weight: bold; /* 버튼 텍스트 굵게 */
+    text-align: center;
+    border-radius: 8px; /* 둥근 모서리 */
+    transition: background-color 0.3s, transform 0.2s; /* 부드러운 전환 효과 */
+}
+
+.region-links a:hover {
+    background-color: #98eced;; /* 호버 시 어두운 파란색 */
+    transform: scale(1.05); /* 살짝 확대 */
+}
+
+/* 범죄자 카드 그리드 */
+.custom-criminal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 유동적으로 1행에 표시 */
+    gap: 20px; /* 카드 간격 */
+    margin-top: 30px;
+    justify-content: center; /* 가운데 정렬 */
+    padding: 0 10px; /* 좌우 여백 */
+}
+
+/* 범죄자 카드 스타일 */
+.custom-criminal-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd; /* 더 부드러운 테두리 색상 */
+    border-radius: 10px;
+    padding: 15px; /* 카드 내부 여백 확대 */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 강화 */
+    transition: transform 0.3s, box-shadow 0.3s; /* 카드 호버 효과 */
+}
+
+/* 카드 이미지 스타일 */
+.custom-criminal-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px; /* 이미지 아래 여백 추가 */
+}
+
+/* 카드 텍스트 스타일 */
+.custom-criminal-card p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333; /* 더 명확한 텍스트 색상 */
+}
+
+/* 카드 호버 효과 */
+.custom-criminal-card:hover {
+    transform: scale(1.05); /* 살짝 확대 */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 더 강한 그림자 */
+}
+
+/* 푸터터 스타일 */
+footer {
+    margin-top: 20px;
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+}
+
+
+/* 모달 스타일 */
+.crime-modal {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.crime-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+    position: relative;
+}
+
+.crime-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.filter-container {
+    margin-bottom: 20px;
+}
+
+.filter-container label {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.filter-container input,
+.filter-container select {
+    margin-right: 20px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+}
+
+.chart-container canvas {
+    max-width: 600px;
+    width: 100%;
+    height: auto;
+}
+
+
+/* 신고 접수 모달 */
+.report-modal {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.596);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.report-modal-content {
+    background: white;
+
+    padding: 20px;
+    border-radius: 20px;
+    width: 90%; /* 화면의 90%를 차지 */
+    max-width: 500px; /* 최대 가로 길이 500px */
+    text-align: left;
+    position: relative;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 폼 행 스타일 */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* 요소 간 간격 */
+    margin-bottom: 20px; /* 행 간 간격 */
+}
+
+/* 폼 열 스타일 */
+.form-column {
+    flex: 1; /* 각 열이 동일한 비율로 크기를 조정 */
+    max-width: 48%; /* 각 열의 최대 너비를 48%로 제한 */
+}
+
+/* 셀렉트 및 입력 필드 크기 조정 */
+form select,
+form input {
+    width: 100%; /* 부모 열의 가로 길이를 가득 채움 */
+    margin-bottom: 10px;
+    padding: 10px; /* 높이를 늘리기 위해 패딩 증가 */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px; /* 글씨 크기와 비례하여 높이를 증가 */
+    box-sizing: border-box; /* 패딩 포함 크기 조정 */
+}
+
+/* 텍스트 입력 필드 크기 조정 */
+form textarea {
+    width: 100%; /* 텍스트 영역도 가로 길이를 조정 */
+    resize: none;
+    margin-bottom: 10px;
+    padding: 5px; /* 높이를 늘리기 위해 패딩 증가 */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px; /* 글씨 크기 증가 */
+    box-sizing: border-box;
+}
+
+/* 버튼 스타일 */
+form button {
+    width: 100%;
+    padding: 10px; /* 버튼 높이를 늘리기 위해 패딩 증가 */
+    background-color: #26969c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form button:hover {
+    background-color: #86399e;
+}
+
+/* 닫기 버튼 */
+.report-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+/* Password 입력 모달 */
+.Password-modal {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.Password-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+.Password-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+}
+form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 14px;
+}
+form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #26969c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+form button:hover {
+    background-color: #1f7a81;
+}
