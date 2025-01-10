@@ -2,17 +2,16 @@ package com.project.crimePrevention.Service;
 
 import com.project.crimePrevention.Model.Board;
 import com.project.crimePrevention.Repository.BoardRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class BoardService {
 
     // 로거 객체 생성: 서비스 레벨 로그를 기록
@@ -26,9 +25,10 @@ public class BoardService {
 
     // 신고 접수 데이터를 저장
     public void saveReport(Board board) {
-        board.setCreateDate(LocalDateTime.now()); // 현재 시간을 생성일로 설정
-        board.setProcessingStatus("Pending"); // 기본 처리 상태를 '처리중'으로 설정
-        boardRepository.save(board);
+        board.setCreateDate(LocalDateTime.now()); // 생성일 설정
+        board.setProcessingStatus("접수 중"); // 기본 상태 설정
+
+        boardRepository.save(board); // Board와 연관된 FileEntity 저장
         logger.info("신고 데이터 저장 완료: {}", board);
     }
 

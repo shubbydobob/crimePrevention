@@ -1,6 +1,7 @@
 package com.project.crimePrevention.Model;
 
 import jakarta.persistence.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,8 +36,12 @@ public class Board {
     @Column(name = "occurrence_time", nullable = false)
     private LocalTime occurrenceTime; // 범죄 발생시간
 
-    @Column(name = "evidence_photo")
-    private String file; // 업로드할 파일
+    // 파일을 String이 아닌 MultipartFile로 받아야 합니다.
+    @Transient  // DB에 저장되지 않도록 Transient 어노테이션을 사용
+    private MultipartFile file; // 파일 업로드를 위한 필드
+
+    @Column(name = "file_path")  // DB에서 파일 경로를 저장할 필드
+    private String filePath;  // 파일 경로 저장
 
     @Column(name = "password", nullable = false)
     private String password; // 게시물 열람용 비밀번호
@@ -49,14 +54,6 @@ public class Board {
 
     @Transient
     private String formattedDate; // 포맷팅된 날짜를 저장하기 위한 필드
-
-    public String getFormattedDate() {
-        return formattedDate;
-    }
-
-    public void setFormattedDate(String formattedDate) {
-        this.formattedDate = formattedDate;
-    }
 
     public Long getId() {
         return id;
@@ -122,12 +119,20 @@ public class Board {
         this.occurrenceTime = occurrenceTime;
     }
 
-    public String getFile() {
+    public MultipartFile getFile() {
         return file;
     }
 
-    public void setFile(String file) {
+    public void setFile(MultipartFile file) {
         this.file = file;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public String getPassword() {
@@ -154,6 +159,14 @@ public class Board {
         this.processingStatus = processingStatus;
     }
 
+    public String getFormattedDate() {
+        return formattedDate;
+    }
+
+    public void setFormattedDate(String formattedDate) {
+        this.formattedDate = formattedDate;
+    }
+
     @Override
     public String toString() {
         return "Board{" +
@@ -165,10 +178,13 @@ public class Board {
                 ", middleCategory='" + middleCategory + '\'' +
                 ", occurrenceDate=" + occurrenceDate +
                 ", occurrenceTime=" + occurrenceTime +
-                ", file='" + file + '\'' +
+                ", file=" + file +
+                ", filePath='" + filePath + '\'' +
                 ", password='" + password + '\'' +
                 ", createDate=" + createDate +
                 ", processingStatus='" + processingStatus + '\'' +
+                ", formattedDate='" + formattedDate + '\'' +
                 '}';
     }
 }
+

@@ -60,7 +60,11 @@
         <p><strong>범죄 발생 날짜:</strong> <span id="modal-date"></span></p>
         <p><strong>범죄 발생 시간:</strong> <span id="modal-time"></span></p>
         <p><strong>이미지/동영상 파일:</strong>
-            <a href="#" id="modal-file" target="_blank">보기</a>
+        <div id="modal-file-container">
+            <img id="modal-thumbnail" src="" alt="썸네일"
+                 style="display: none; width: 100px; height: auto; cursor: pointer;">
+            <a id="modal-file" href="#" target="_blank">보기</a>
+        </div>
         </p>
         <p><strong>작성일:</strong> <span id="modal-createDate"></span></p>
         <p><strong>처리 상태:</strong> <span id="modal-status"></span></p>
