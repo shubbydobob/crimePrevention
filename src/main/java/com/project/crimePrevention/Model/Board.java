@@ -54,7 +54,7 @@ public class Board {
 
     @Transient
     private String formattedDate; // 포맷팅된 날짜를 저장하기 위한 필드
-
+    
     public Long getId() {
         return id;
     }

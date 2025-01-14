@@ -1,10 +1,12 @@
 package com.project.crimePrevention.Controller;
 
 import com.project.crimePrevention.Model.Board;
+import com.project.crimePrevention.Service.AdminService;
 import com.project.crimePrevention.Service.BoardService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,15 +26,15 @@ public class BoardController {
 
     // 로거 객체 생성: BoardController에서 발생하는 로그를 기록
     private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
-    private final BoardService boardService;
 
     @Value("${file.upload-dir}")
     private String uploadDir; // 파일 업로드 경로
 
-    public BoardController(BoardService boardService) {
-        this.boardService = boardService;
+    @Autowired
+    private BoardService boardService;
 
-    }
+    @Autowired
+    private AdminService adminService;
 
     @GetMapping("/Board")
     public String getBoardPage(Model model) {
@@ -46,12 +48,11 @@ public class BoardController {
 
     @PostMapping("/Board")
     @ResponseBody
-    public String submitBoard(
-            @ModelAttribute Board board,  // Board 엔티티를 폼 데이터로 바인딩
-            @RequestParam(value = "captcha", required = false) String captchaInput, // 캡차 입력값
-            @RequestParam(value = "file", required = false) MultipartFile file, // 파일 업로드
-            HttpSession session, // HTTP 세션 객체
-            Model model) { // 모델 객체, 뷰로 데이터를 전달
+    public String submitBoard(@ModelAttribute Board board,  // Board 엔티티를 폼 데이터로 바인딩
+                              @RequestParam(value = "captcha", required = false) String captchaInput, // 캡차 입력값
+                              @RequestParam(value = "file", required = false) MultipartFile file, // 파일 업로드
+                              HttpSession session, // HTTP 세션 객체
+                              Model model) { // 모델 객체, 뷰로 데이터를 전달
 
         logger.info("신고 접수 요청 - 데이터: {}", board); // 신고 접수 데이터 로깅
 
@@ -111,29 +112,47 @@ public class BoardController {
         return "redirect:/Board"; // 신고 처리 후 목록 페이지로 리다이렉트
     }
 
+    // 열람 비밀번호 검증 및 관리자 로그인 후 비밀번호 입력 없이 조회
+    @GetMapping("Board/validatePassword/{id}")
+    @ResponseBody
+    public ResponseEntity<?> validatePassword(@PathVariable Long id, @RequestParam(required = false) String password, HttpSession session) {
+        logger.info("비밀번호 검증 요청 - ID: {}", id);
 
-    // 열람용 비밀번호 검증
-    @GetMapping("/Board/validatePassword/{id}")
-    public ResponseEntity<Board> validatePassword(
-            @PathVariable Long id,
-            @RequestParam String password) {
-        logger.info("비밀번호 검증 요청 - ID: {}, Password: {}", id, password);
+        Object isAdmin = session.getAttribute("isAdmin");
+        logger.info("세션 관리자 상태: {}", isAdmin);
 
+
+        // 관리자인지 확인
+        if (isAdmin != null && (boolean) isAdmin) {
+            logger.info("관리자 로그인 확인됨. 접수번호: {}의 데이터 반환.", id);
+            Board board = boardService.getReportById(id);
+
+            // 작성일 포맷 처리
+            formatCreateDate(board);
+            return ResponseEntity.ok(board); // 관리자에게 데이터 반환
+        }
+
+        // 일반 사용자 비밀번호 검증
         try {
             Board board = boardService.validatePassword(id, password);
-            logger.info("비밀번호 검증 성공 - ID: {}, Reporter: {}", id, board.getReporter());
+            logger.info("비밀번호 확인 성공. 접수번호: {}의 데이터 반환.", id);
 
-            // Format the createDate and set it to formattedDate
-            if (board.getCreateDate() != null) {
-                String formattedDate = board.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                board.setFormattedDate(formattedDate);
-            }
+            // 작성일 포맷 처리
+            formatCreateDate(board);
             return ResponseEntity.ok(board);
         } catch (IllegalArgumentException e) {
-            logger.error("비밀번호 검증 실패: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            logger.warn("비밀번호 확인 실패 - 접수번호: {}, 이유: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 틀렸습니다.");
+        }
+    }
+
+    // 작성일 포맷 처리 메서드
+    private void formatCreateDate(Board board) {
+        if (board.getCreateDate() != null) {
+            String formattedDate = board.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            board.setFormattedDate(formattedDate);
+            logger.info("작성일 포맷팅 완료 - 접수번호: {}, 포맷된 날짜: {}", board.getId(), formattedDate);
         }
     }
 }
-
 

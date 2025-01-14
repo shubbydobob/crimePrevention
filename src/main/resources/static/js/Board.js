@@ -1,11 +1,33 @@
+let isAdmin = false; // 전역 변수로 선언, 모든 함수에 접근 가능
+
 document.addEventListener("DOMContentLoaded", () => {
+     isAdmin = document.body.getAttribute("data-is-admin") === "true"; // 관리자 여부 확인
+     console.log("관리자 여부:", isAdmin); // 디버깅용 로그
+
+
+    // 로그아웃 버튼 표시/숨기기
+    const adminActions = document.getElementById("admin-actions");
+    if (isAdmin) {
+        adminActions.style.display = "block"; // 관리자일 경우 로그아웃 버튼 표시
+        console.log("관리자 로그인 상태: 로그아웃 버튼 표시");
+    } else {
+        adminActions.style.display = "none"; // 일반 사용자일 경우 로그아웃 버튼 숨기기
+        console.log("일반 사용자 상태: 로그아웃 버튼 숨김");
+    }
+
     // 상세 보기 버튼 클릭 이벤트 추가
     const detailButtons = document.querySelectorAll(".detail-button");
     detailButtons.forEach(button => {
         button.addEventListener("click", () => {
             const id = button.getAttribute("data-id");
             console.log("클릭한 접수 번호:", id); // 로그 출력
-            openPasswordModal(id); // 비밀번호 모달 열기
+            if (isAdmin) {
+                 console.log("관리자로 확인됨. 비밀번호 없이 데이터 요청.");
+                 fetchDataWithoutPassword(id); // 관리자일 경우 바로 데이터 요청
+            } else {
+                 console.log("일반 사용자 접근. 비밀번호 모달 열림.");
+                 openPasswordModal(id); // 일반 사용자는 비밀번호 모달 열기
+            }
         });
     });
 });
@@ -14,9 +36,33 @@ let selectedReportId = null; // 클릭한 접수 번호 저장
 
 // 비밀번호 모달 열기
 function openPasswordModal(reportId) {
+    // 관리자 여부 확인 (HTML의 data-is-admin 속성 이용)
     selectedReportId = reportId; // 클릭한 접수 번호 저장
-    document.getElementById('password-modal').style.display = 'flex';
-    console.log("비밀번호 모달 열림. 선택된 ID:", reportId); // 디버깅 로그
+
+    if (isAdmin) {
+            console.log("[INFO] 관리자 확인됨. 비밀번호 모달 없이 데이터 요청.");
+            fetchDataWithoutPassword(reportId);
+        } else {
+            console.log("[INFO] 일반 사용자 접근. 비밀번호 모달 열림." + reportId);
+            document.getElementById('password-modal').style.display = 'flex';
+        }
+    }
+
+// 관리자 : 비밀번호 없이 데이터 요청
+function fetchDataWithoutPassword(reportId) {
+    fetch(`/Board/validatePassword/${reportId}`, {
+        method: "GET",
+        credentials: "include", // 세션 정보 포함
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("관리자 데이터 요청 실패.");
+            return response.json();
+        })
+        .then(data => {
+            console.log("관리자 데이터 요청 성공:", data);
+            openDetailModal(data); // 상세정보 표시
+        })
+        .catch(error => console.error("데이터 요청 오류:", error));
 }
 
 // 비밀번호 모달 닫기
@@ -106,3 +152,18 @@ function closeDetailModal() {
     document.getElementById('detail-modal').style.display = 'none';
     console.log("상세 보기 모달 닫힘."); // 디버깅 로그
 }
+
+// 로그아웃 함수
+    function logout() {
+        fetch("/Logout", { method: "GET", credentials: "include" })
+            .then(response => {
+                if (response.ok) {
+                    console.log("로그아웃 성공");
+                    document.body.setAttribute("data-is-admin", "false"); // 관리자 상태 초기화
+                    window.location.href = "/Admin"; // 로그인 페이지로 이동
+                } else {
+                    console.error("로그아웃 실패");
+                }
+            })
+            .catch(error => console.error("로그아웃 요청 오류:", error));
+    }

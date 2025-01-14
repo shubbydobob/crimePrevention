@@ -6,8 +6,12 @@
     <link href="/css/Board.css" rel="stylesheet">
     <script defer src="/js/Board.js"></script>
 </head>
-<body>
+<body th:attr="data-is-admin=${isAdmin}"> <!-- 관리자는 true, 일반 사용자는 false -->
 <h1>신고 현황</h1>
+<!-- 관리자인 경우 로그아웃 버튼 표시 -->
+<div id="admin-actions" style="display: none;">
+    <button onclick="logout()">로그아웃</button>
+</div>
 <p>여기에 신고 현황 데이터가 표시됩니다.</p>
 <table>
     <thead>
@@ -24,7 +28,7 @@
     <tr th:each="post : ${reports}">
         <td th:text="${post.id}"></td>
         <td th:text="${post.content}"></td>
-        <td th:text="${post.reporter}"></td>
+        <td th:text="${#strings.length(post.reporter) > 1 ? post.reporter.substring(0, 1) + '**' : '익명'}"></td>
         <td th:text="${post.formattedDate}"></td>
         <td th:text="${post.processingStatus}"></td>
         <td>

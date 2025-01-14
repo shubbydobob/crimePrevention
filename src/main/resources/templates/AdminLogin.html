@@ -2,26 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 로그인</title>
+    <link rel="stylesheet" href="/css/AdminLogin.css">
 </head>
 <body>
-<div class="titleArea">
-    <h2>관리자 로그인</h2>
-</div>
-<div class="loginForm">
-    <form action="/AdminLogin" method="post">
-        <div id="adminLabel">
-            <label for="admin">아이디:</label>
-            <input id="admin" name="admin" required type="text">
-        </div>
-        <div id="passwordLabel">
-            <label for="password">비밀번호:</label>
-            <input id="password" name="password" required type="password">
-        </div>
-        <div id="button">
-            <button type="submit">로그인</button>
-        </div>
-    </form>
+<div class="login-container">
+    <div class="titleArea">
+        <h2>관리자 로그인</h2>
+    </div>
+    <div class="loginForm">
+        <form action="/AdminLogin" method="post">
+            <div class="input-group">
+                <label for="admin">아이디:</label>
+                <input id="admin" name="admin" required type="text" placeholder="아이디 입력">
+            </div>
+            <div class="input-group">
+                <label for="password">비밀번호:</label>
+                <input id="password" name="password" required type="password" placeholder="비밀번호 입력">
+            </div>
+            <div class="button-group">
+                <button type="submit">로그인</button>
+            </div>
+        </form>
+    </div>
 </div>
 </body>
 </html>
