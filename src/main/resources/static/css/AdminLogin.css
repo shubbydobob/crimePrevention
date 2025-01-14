@@ -1,0 +1,79 @@
+/* 전체 화면 배경 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+/* 로그인 컨테이너 */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+}
+
+/* 제목 스타일 */
+.titleArea h2 {
+    text-align: center;
+    color: #26969c;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* 입력 그룹 스타일 */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+/* 입력 필드 포커스 효과 */
+.input-group input:focus {
+    border-color: #26969c;
+    outline: none;
+}
+
+/* 버튼 그룹 스타일 */
+.button-group {
+    text-align: center;
+}
+
+.button-group button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #26969c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.button-group button:hover {
+    background-color: #1f7a81;
+    transform: scale(1.05);
+}

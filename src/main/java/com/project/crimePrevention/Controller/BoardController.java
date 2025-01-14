@@ -15,9 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,10 +68,18 @@ public class BoardController {
             try {
                 logger.info("파일 업로드 시작 - 파일명: {}", file.getOriginalFilename());
 
+                // 업로드 디렉토리 확인 및 생성
+                File directory = new File(uploadDir);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
                 // 파일 경로 및 이름 생성
                 String originalName = file.getOriginalFilename(); // 원본 파일명
                 String fileName = UUID.randomUUID().toString() + "_" + originalName; // 고유한 파일명 생성
                 String filePath = uploadDir + fileName; // 저장할 파일 경로 설정
+
+                logger.info("업로드 디렉토리: {}", uploadDir);
 
                 // 서버 디렉토리에 파일 저장
                 file.transferTo(new File(filePath));

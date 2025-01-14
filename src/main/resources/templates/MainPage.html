@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -8,227 +8,298 @@
     <script defer src="/js/MainPage.js"></script>
 </head>
 <body>
+<div class="background-ad">
+    <!-- 상단 슬라이드 광고 -->
+    <div class="ad ad-top">
+        <div class="slide">📢 실시간 범죄 예측으로 안전을 지키세요! 📢</div>
+        <div class="slide">🔔 신고 접수 현황을 지금 확인하세요! 🔔</div>
+    </div>
+
+    <!-- 하단 슬라이드 광고 -->
+    <div class="ad ad-bottom">
+        <div class="slide">🛡️ 범죄를 예방하는 스마트 모니터링 시스템 🛡️</div>
+        <div class="slide">💡 신고는 빠르고 간편하게, 모두의 안전을 위해! 💡</div>
+    </div>
+</div>
+
 <header>
     <h1>범죄 상황 예측 모니터링 및 신고 접수 현황</h1>
+    <div class="header-line"></div> <!-- 선 추가 -->
     <nav>
-        <a href="/MyPage">🌟마이 페이지🌟</a>
+        <a href="/Board" target="_blank">🌟신고접수 (익명) 현황 게시판🌟</a>
         <a href="#">고객센터</a>
-        <a href="#" onclick="showRegionModal()">지역별 실시간 범죄자 리스트</a>
+        <a href="chatbot.html">요봇</a>
     </nav>
 </header>
-<!-- 지역 선택 모달 -->
-<div class="custom-modal" id="regionModal">
-    <div class="custom-modal-content">
-        <span class="custom-modal-close" onclick="closeRegionModal()">&times;</span>
-        <h2>지역별 실시간 범죄자 리스트</h2>
-        <nav class="region-links">
-            <a href="#" onclick="loadCriminalsByRegion('서울')">서울</a>
-            <a href="#" onclick="loadCriminalsByRegion('경기도')">경기도</a>
-            <a href="#" onclick="loadCriminalsByRegion('강원도')">강원도</a>
-            <a href="#" onclick="loadCriminalsByRegion('충청북도')">충청북도</a>
-            <a href="#" onclick="loadCriminalsByRegion('충청남도')">충청남도</a>
-            <a href="#" onclick="loadCriminalsByRegion('전라북도')">전라북도</a>
-            <a href="#" onclick="loadCriminalsByRegion('전라남도')">전라남도</a>
-            <a href="#" onclick="loadCriminalsByRegion('경상북도')">경상북도</a>
-            <a href="#" onclick="loadCriminalsByRegion('경상남도')">경상남도</a>
-            <a href="#" onclick="loadCriminalsByRegion('제주')">제주</a>
-            <a href="#" onclick="loadCriminalsByRegion('부산')">부산</a>
-            <a href="#" onclick="loadCriminalsByRegion('대구')">대구</a>
-            <a href="#" onclick="loadCriminalsByRegion('인천')">인천</a>
-            <a href="#" onclick="loadCriminalsByRegion('광주')">광주</a>
-            <a href="#" onclick="loadCriminalsByRegion('대전')">대전</a>
-            <a href="#" onclick="loadCriminalsByRegion('울산')">울산</a>
-            <a href="#" onclick="loadCriminalsByRegion('세종')">세종</a>
-        </nav>
-        <div class="custom-criminal-grid" id="criminalGrid">
-            <!-- 선택한 지역의 범죄자 리스트가 여기에 표시됩니다 -->
+
+<!-- 배경 컨테이너 -->
+<div class="banner">
+    <!-- 슬라이드 패널 -->
+    <div class="slider-container">
+        <div class="info-section">
+            <h2>범죄 예방, 당신의 신고로 시작됩니다!</h2>
+            <p>실시간 범죄 상황 예측 및 신고 접수 현황을 확인하세요.</p>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <h3>35건</h3>
+                    <p>현재 접수된 신고</p>
+                </div>
+                <div class="stat-item">
+                    <h3>5건</h3>
+                    <p>긴급 대응 중</p>
+                </div>
+                <div class="stat-item">
+                    <h3>20분</h3>
+                    <p>평균 처리 시간</p>
+                </div>
+            </div>
+
+            <!-- 신고 버튼 -->
+            <button class="report-button">신고하기</button>
+
+            <!-- QR 코드 -->
+            <div class="qr-code">
+                <p>스마트폰으로 신고하기</p>
+                <img src="/images/crime_reporting_qr_code.png" alt="QR 코드"/>
+            </div>
         </div>
     </div>
 </div>
+
 <main>
-    <div class="nav-container">
-        <!-- 왼쪽 사진 영역 -->
-        <div class="photo-section">
-            <img alt="사진 공간" src="/images/policemain.jpg"/>
+    <div class="toggle-container">
+        <!-- 토글 버튼과 콘텐츠 영역 -->
+        <div class="content-area">
+            <!-- 토글 버튼 -->
+            <div class="toggle-buttons">
+                <input type="radio" id="serviceRadio" name="toggle" class="toggle-input"
+                       onclick="toggleService('service')" checked/>
+                <label for="serviceRadio" class="toggle-label">대민 서비스</label>
+                <input type="radio" id="reportRadio" name="toggle" class="toggle-input"
+                       onclick="toggleService('report')"/>
+                <label for="reportRadio" class="toggle-label">신고 하기</label>
+            </div>
+
+            <div id="serviceContent" class="content-box">
+                <!-- 대민 서비스 관련 내용 -->
+                <div class="nav-grid">
+                    <div class="nav-item">
+                        <a href="graphes.html" class="nav-link">
+                            <i class="icon">📊</i>
+                            <p>조건별 범죄상황<br>예측 모니터링</p></a>
+                    </div>
+                    <div class="nav-item">
+                        <i class="icon">📚</i>
+                        <p>자유게시판</p>
+                    </div>
+                    <div class="nav-item">
+                        <i class="icon">🚔</i>
+                        <p>경찰민원포털</p>
+                    </div>
+
+                    <div class="nav-item">
+                        <i class="icon">📍</i>
+                        <p>내주변 <br>범죄 모니터링</p>
+                    </div>
+                    <div class="nav-item">
+                        <i class="icon">🏢</i>
+                        <p>내 주변<br>경찰서&지구대</p>
+                    </div>
+                    <div class="nav-item">
+                        <i class="icon">📣</i>
+                        <p>긴급 상황 알림</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 신고하기 관련 내용 -->
+            <div id="reportContent" class="content-box" style="display:none;">
+                <div class="nav-grid">
+                    <!-- 신고 접수 -->
+                    <div class="nav-item" onclick="openReportModal()">
+                        <i class="icon">📝</i>
+                        <p>🌟신고🌟<br> 접수</p>
+                    </div>
+                    <!-- 신고 접수 모달 -->
+                    <div class="report-modal" id="report-modal">
+                        <div class="report-modal-content">
+                            <span class="report-close-btn" onclick="closeReportModal()">&times;</span>
+                            <h2>신고 접수</h2>
+                            <form enctype="multipart/form-data" id="reportForm">
+                                <!-- 신고자 정보 -->
+                                <label for="reporter">신고자:</label>
+                                <input id="reporter" name="reporter" placeholder="신고자 이름" required type="text">
+
+                                <!-- 연락처 -->
+                                <label for="phoneNumber">신고자 연락처</label>
+                                <input id="phoneNumber" name="phoneNumber" placeholder="-를 빼고 입력해주세요" required
+                                       type="text">
+
+                                <!-- 신고 사유 -->
+                                <label for="content">신고 사유:</label>
+                                <textarea id="content" name="content" placeholder="신고 사유를 입력하세요" required
+                                          rows="4"></textarea>
+
+                                <!-- 범죄 유형 -->
+                                <div class="form-row">
+                                    <div class="form-column">
+                                        <label for="majorCategory">범죄 대분류:</label>
+                                        <select id="majorCategory" name="majorCategory" onchange="updateSubCategories()"
+                                                required>
+                                            <option disabled selected value="">선택하세요</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-column">
+                                        <label for="middleCategory">범죄 중분류:</label>
+                                        <select id="middleCategory" name="middleCategory" required>
+                                            <option disabled selected value="">선택하세요</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- 범죄 발생 날짜와 시간 -->
+                                <div class="form-row">
+                                    <div class="form-column">
+                                        <label for="crime-date">범죄 발생 날짜:</label>
+                                        <input id="crime-date" name="occurrenceDate" required type="date">
+                                    </div>
+                                    <div class="form-column">
+                                        <label for="occurrenceTime">범죄 발생 시간:</label>
+                                        <input id="occurrenceTime" name="occurrenceTime" required type="time">
+                                    </div>
+                                </div>
+                                <!-- CAPTCHA -->
+                                <div class="captcha-container">
+                                    <label class="form-label" for="captcha">CAPTCHA</label>
+                                    <div class="captcha-group">
+                                        <img alt="Captcha" class="captcha-image"
+                                             onclick="this.src='/captcha?' + Math.random();"
+                                             src="/captcha">
+                                        <input id="captcha" name="captcha" placeholder="자동등록방지 숫자 입력" required
+                                               type="text">
+                                    </div>
+                                    <small class="form-text">이미지를 클릭하면 새로고침됩니다.</small>
+                                </div>
+
+                                <!-- 파일 첨부 -->
+                                <label for="attachments">증거 파일 (이미지 또는 비디오) 첨부:</label>
+                                <input accept="image/*,video/*" id="attachments" multiple name="file" type="file">
+
+                                <label for="report-password">현황 열람용 비밀번호:</label>
+                                <input id="report-password" name="password" type="password">
+                                <!-- 제출 버튼 -->
+                                <button type="submit">신고 접수</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <i class="icon">⚠️</i>
+                        <p>사고 신고</p>
+                    </div>
+                    <!-- 신고 현황 -->
+                    <div class="nav-item" onclick="showPinModal()">
+                        <i class="icon">📄</i>
+                        <p>접수된 신고 현황</p>
+                    </div>
+                    <div class="nav-item">
+                        <i class="icon">🔍</i>
+                        <p>신고 검색</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 오른쪽 네비게이션 그리드 -->
-        <div class="nav-grid">
-            <div class="nav-item">
-                <a class="nav-link" href="graphes.html">
-                    <i class="icon">📊</i>
-                    <p>범죄 상황 예측 모니터링</p>
-                </a>
+        <div class="vertical-info-container">
+            <div class="info-box">
+                <h2>범죄 상황 예측 모니터링</h2>
+                <p>
+                    범죄 상황 예측 모니터링은 지역별, 시간대별, 조건별로 범죄 가능성을 분석하여,
+                    시민들에게 실시간 안전 정보를 제공합니다.
+                    빅데이터 기반의 분석을 통해 범죄를 사전에 예방하고,
+                    경찰 및 지역 사회가 효율적으로 대응할 수 있도록 돕는 시스템입니다.
+                </p>
             </div>
-            <div class="nav-item">
-                <i class="icon">📍</i>
-                <p>내 주변 범죄 모니터링</p>
-            </div>
-            <div class="nav-item">
-                <i class="icon">🏢</i>
-                <p>내 주변 경찰서 및 지구대</p>
-            </div>
-            <div class="nav-item">
-                <i class="icon siren">🚨</i>
-                <p>긴급 상황</p>
-            </div>
-            <div class="nav-item" onclick="openReportModal()">
-                <i class="icon">📝</i>
-                <p>🌟🌟신고 접수하기🌟🌟</p>
-            </div>
-            <!-- 신고 접수 모달 -->
-            <div class="report-modal" id="report-modal">
-                <div class="report-modal-content">
-                    <span class="report-close-btn" onclick="closeReportModal()">&times;</span>
-                    <h2>신고 접수</h2>
-                    <form enctype="multipart/form-data" id="reportForm">
-                        <!-- 신고자 정보 -->
-                        <label for="reporter">신고자:</label>
-                        <input id="reporter" name="reporter" placeholder="신고자 이름" required type="text">
 
-                        <!-- 연락처 -->
-                        <label for="phoneNumber">신고자 연락처</label>
-                        <input id="phoneNumber" name="phoneNumber" placeholder="-를 빼고 입력해주세요" required type="text">
-
-                        <!-- 신고 사유 -->
-                        <label for="content">신고 사유:</label>
-                        <textarea id="content" name="content" placeholder="신고 사유를 입력하세요" required rows="4"></textarea>
-
-                        <!-- 범죄 유형 -->
-                        <div class="form-row">
-                            <div class="form-column">
-                                <label for="majorCategory">범죄 대분류:</label>
-                                <select id="majorCategory" name="majorCategory" onchange="updateSubCategories()"
-                                        required>
-                                    <option disabled selected value="">선택하세요</option>
-                                </select>
-                            </div>
-                            <div class="form-column">
-                                <label for="middleCategory">범죄 중분류:</label>
-                                <select id="middleCategory" name="middleCategory" required>
-                                    <option disabled selected value="">선택하세요</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- 범죄 발생 날짜와 시간 -->
-                        <div class="form-row">
-                            <div class="form-column">
-                                <label for="crime-date">범죄 발생 날짜:</label>
-                                <input id="crime-date" name="occurrenceDate" required type="date">
-                            </div>
-                            <div class="form-column">
-                                <label for="crime-time">범죄 발생 시간:</label>
-                                <input id="occurrenceTime" name="occurrenceTime" required type="time">
-                            </div>
-                        </div>
-                        <!-- CAPTCHA -->
-                        <div class="captcha-container">
-                            <label class="form-label" for="captcha">CAPTCHA</label>
-                            <div class="captcha-group">
-                                <img alt="Captcha" class="captcha-image" onclick="this.src='/captcha?' + Math.random();"
-                                     src="/captcha">
-                                <input id="captcha" name="captcha" placeholder="자동등록방지 숫자 입력" required type="text">
-                            </div>
-                            <small class="form-text">이미지를 클릭하면 새로고침됩니다.</small>
-                        </div>
-
-                        <!-- 파일 첨부 -->
-                        <label for="attachments">증거 파일 (이미지 또는 비디오) 첨부:</label>
-                        <input accept="image/*,video/*" id="attachments" multiple name="file" type="file">
-
-                        <label for="report-password">현황 열람용 비밀번호:</label>
-                        <input id="report-password" name="password" type="password">
-                        <!-- 제출 버튼 -->
-                        <button type="submit">신고 접수</button>
-                    </form>
+            <!-- 영상 영역 추가 -->
+            <div class="video-container">
+                <h2>범죄 상황 예측 및 대응 시스템 소개 영상</h2>
+                <div class="video-wrapper">
+                    <!-- 유튜브 또는 로컬 파일 영상 -->
+                    <iframe src="https://www.youtube.com/embed/example" frameborder="0"
+                            allow="autoplay; encrypted-media"
+                            allowfullscreen></iframe>
                 </div>
             </div>
 
-            <div class="nav-item">
-                <i class="icon camera">🎥</i>
-                <p>CCTV 위치</p>
+            <div class="info-box">
+                <h2>신고 접수 현황</h2>
+                <p>
+                    신고 접수 현황은 실시간으로 들어오는 범죄 신고 데이터를 수집 및 처리합니다.
+                    이를 통해 사건 발생 상황과 신고 유형을 분석하고,
+                    신속한 대응과 자원 배치를 가능하게 합니다.
+                    시민들의 안전을 위해 보다 빠르고 정확한 신고 접수가 이루어질 수 있습니다.
+                </p>
             </div>
-
-            <!-- 범죄 유형별 통계 -->
-            <div class="nav-item">
-                <i class="icon">🔎</i>
-                <p>범죄 유형별 통계</p>
+        </div>
+        <!-- 가로로 움직이는 텍스트 컨테이너 -->
+        <div class="scrolling-text-container">
+            <div class="scrolling-text"
+                 data-text="📢 최신 소식: 범죄 예방을 위해 힘쓰는 경찰관들을 소개합니다! 📢 강력범죄, 교통범죄, 마약범죄 등 다양한 분야에서 활약 중입니다! 📢 지능범죄에 맞서 싸우며, 시민의 재산을 보호하는 데 앞장서고 있습니다! 📢 특별수사팀의 활약으로 연속 절도 사건이 해결되었습니다! 📢 시민 안전을 위해 도심 곳곳에서 24시간 순찰을 이어갑니다! 📢 함께하는 안전: 우리 지역 경찰관들의 따뜻한 손길과 노력에 감사드립니다. 📢 경찰특공대의 빠른 대응으로 마약밀매 조직이 해체되었습니다! 📢 모두의 안전을 위해, 교통법규 준수와 시민 협력이 중요합니다! 📢">
+                📢 최신 소식: 범죄 예방을 위해 힘쓰는 경찰관들을 소개합니다! 📢
+                강력범죄, 교통범죄, 마약범죄 등 다양한 분야에서 활약 중입니다! 📢
+                지능범죄에 맞서 싸우며, 시민의 재산을 보호하는 데 앞장서고 있습니다! 📢
+                특별수사팀의 활약으로 연속 절도 사건이 해결되었습니다! 📢
+                시민 안전을 위해 도심 곳곳에서 24시간 순찰을 이어갑니다! 📢
+                함께하는 안전: 우리 지역 경찰관들의 따뜻한 손길과 노력에 감사드립니다! 📢
+                경찰특공대의 빠른 대응으로 마약밀매 조직이 해체되었습니다! 📢
+                모두의 안전을 위해, 교통법규 준수와 시민 협력이 중요합니다! 📢
             </div>
+        </div>
 
-            <!-- 시간대별 범죄 -->
-            <div class="nav-item" onclick="openCrimeModal()">
-                <i class="icon">📅</i>
-                <p>요일 및 시간대별 범죄 통계</p>
-            </div>
-            <!-- 모달 -->
-            <div class="crime-modal" id="crime-modal">
-                <div class="crime-modal-content">
-                    <span class="crime-close-btn" onclick="closeCrimeModal()">&times;</span>
-                    <h2>요일 및 시간대별 범죄 통계</h2>
-                    <div class="filter-container">
-                        <label for="crime-day">요일 선택:</label>
-                        <select id="crime-day" onchange="updateStatistics()">
-                            <option value="monday">월요일</option>
-                            <option value="tuesday">화요일</option>
-                            <option value="wednesday">수요일</option>
-                            <option value="thursday">목요일</option>
-                            <option value="friday">금요일</option>
-                            <option value="saturday">토요일</option>
-                            <option value="sunday">일요일</option>
-                        </select>
-
-                        <label for="crime-time">시간대 선택:</label>
-                        <select id="crime-time" onchange="updateStatistics()">
-                            <option value="0-6">00시~06시</option>
-                            <option value="6-12">06시~12시</option>
-                            <option value="12-18">12시~18시</option>
-                            <option value="18-24">18시~24시</option>
-                        </select>
-                    </div>
-
-                    <div class="chart-container">
-                        <div>
-                            <h3>시간대별 범죄 유형 비율 (원형 그래프)</h3>
-                            <canvas id="crime-pieChart"></canvas>
-                        </div>
-                        <div>
-                            <h3>요일별 범죄 발생 건수 (막대 그래프)</h3>
-                            <canvas id="crime-barChart"></canvas>
-                        </div>
-                    </div>
+        <!-- 사진 컨테이너 -->
+        <div class="photo-section">
+            <div class="photo-item">
+                <img src="/images/img_ho1.jpg" alt="경찰관 1"/>
+                <div class="info-overlay">
+                    <h3>경찰관 1</h3>
+                    <p>담당: 지능범죄</p>
+                    <p>직책: 경사</p>
                 </div>
             </div>
-
-
-            <!-- 신고 현황 -->
-            <div class="nav-item" onclick="goToBoardPage()">
-                <i class="icon">📄</i>
-                <p>접수된 신고 현황</p>
+            <div class="photo-item">
+                <img src="/images/img_ho2.jpg" alt="경찰관 2"/>
+                <div class="info-overlay">
+                    <h3>경찰관 2</h3>
+                    <p>담당: 절도범죄</p>
+                    <p>직책: 경위</p>
+                </div>
             </div>
-
-            <!-- 지역별 범죄 지도 -->
-            <div class="nav-item">
-                <i class="icon">🌍</i>
-                <p>국가별 범죄/안전 지수</p>
+            <div class="photo-item">
+                <img src="/images/img_ho3.jpg" alt="경찰관 3"/>
+                <div class="info-overlay">
+                    <h3>경찰관 3</h3>
+                    <p>담당: 강력범죄</p>
+                    <p>직책: 경감</p>
+                </div>
             </div>
-
-            <!-- 출동 중인 경찰 정보 -->
-            <div class="nav-item" onclick="showLoginModal()">
-                <i class="icon">👮‍♂️</i>
-                <p>출동 중인 경찰 정보</p>
+            <div class="photo-item">
+                <img src="/images/img_ho4.jpg" alt="경찰관 4"/>
+                <div class="info-overlay">
+                    <h3>경찰관 4</h3>
+                    <p>담당: 마약범죄</p>
+                    <p>직책: 경찰특공대 대원</p>
+                </div>
             </div>
-
-            <!-- 긴급 상황 알림 -->
-            <div class="nav-item">
-                <i class="icon">📣</i>
-                <p>긴급 상황 알림</p>
+            <div class="photo-item">
+                <img src="/images/img_ho5.jpg" alt="경찰관 5"/>
+                <div class="info-overlay">
+                    <h3>경찰관 5</h3>
+                    <p>담당: 교통범죄</p>
+                    <p>직책: 교통경찰</p>
+                </div>
             </div>
         </div>
     </div>
 </main>
-
-<footer>
-    <p>&copy; 2025 범죄 상황 예측 모니터링 시스템</p>
-</footer>
 </body>
 </html>
