@@ -61,7 +61,7 @@
             <!-- QR 코드 -->
             <div class="qr-code">
                 <p>스마트폰으로 신고하기</p>
-                <img src="/images/crime_reporting_qr_code.png" alt="QR 코드"/>
+                <img alt="QR 코드" src="/images/crime_reporting_qr_code.png"/>
             </div>
         </div>
     </div>
@@ -73,19 +73,19 @@
         <div class="content-area">
             <!-- 토글 버튼 -->
             <div class="toggle-buttons">
-                <input type="radio" id="serviceRadio" name="toggle" class="toggle-input"
-                       onclick="toggleService('service')" checked/>
-                <label for="serviceRadio" class="toggle-label">대민 서비스</label>
-                <input type="radio" id="reportRadio" name="toggle" class="toggle-input"
-                       onclick="toggleService('report')"/>
-                <label for="reportRadio" class="toggle-label">신고 하기</label>
+                <input checked class="toggle-input" id="serviceRadio" name="toggle"
+                       onclick="toggleService('service')" type="radio"/>
+                <label class="toggle-label" for="serviceRadio">대민 서비스</label>
+                <input class="toggle-input" id="reportRadio" name="toggle" onclick="toggleService('report')"
+                       type="radio"/>
+                <label class="toggle-label" for="reportRadio">신고 하기</label>
             </div>
 
-            <div id="serviceContent" class="content-box">
+            <div class="content-box" id="serviceContent">
                 <!-- 대민 서비스 관련 내용 -->
                 <div class="nav-grid">
                     <div class="nav-item">
-                        <a href="graphes.html" class="nav-link">
+                        <a class="nav-link" href="/Dashboard">
                             <i class="icon">📊</i>
                             <p>조건별 범죄상황<br>예측 모니터링</p></a>
                     </div>
@@ -114,7 +114,7 @@
             </div>
 
             <!-- 신고하기 관련 내용 -->
-            <div id="reportContent" class="content-box" style="display:none;">
+            <div class="content-box" id="reportContent" style="display:none;">
                 <div class="nav-grid">
                     <!-- 신고 접수 -->
                     <div class="nav-item" onclick="openReportModal()">
@@ -135,10 +135,13 @@
                                 <label for="phoneNumber">신고자 연락처</label>
                                 <input id="phoneNumber" name="phoneNumber" placeholder="-를 빼고 입력해주세요" required
                                        type="text">
+                                <!-- 신고 제목 -->
+                                <label for="reportTitle">신고 사유:</label>
+                                <input id="reportTitle" name="reportTitle" placeholder="신고 사유를 입력해주세요." type="text">
 
                                 <!-- 신고 사유 -->
-                                <label for="content">신고 사유:</label>
-                                <textarea id="content" name="content" placeholder="신고 사유를 입력하세요" required
+                                <label for="content">신고 내용:</label>
+                                <textarea id="content" name="content" placeholder="신고 내용을 입력하세요" required
                                           rows="4"></textarea>
 
                                 <!-- 범죄 유형 -->
@@ -225,9 +228,9 @@
                 <h2>범죄 상황 예측 및 대응 시스템 소개 영상</h2>
                 <div class="video-wrapper">
                     <!-- 유튜브 또는 로컬 파일 영상 -->
-                    <iframe src="https://www.youtube.com/embed/example" frameborder="0"
-                            allow="autoplay; encrypted-media"
-                            allowfullscreen></iframe>
+                    <iframe allow="autoplay; encrypted-media" allowfullscreen
+                            frameborder="0"
+                            src="https://www.youtube.com/embed/example"></iframe>
                 </div>
             </div>
 
@@ -259,7 +262,7 @@
         <!-- 사진 컨테이너 -->
         <div class="photo-section">
             <div class="photo-item">
-                <img src="/images/img_ho1.jpg" alt="경찰관 1"/>
+                <img alt="경찰관 1" src="/images/img_ho1.jpg"/>
                 <div class="info-overlay">
                     <h3>경찰관 1</h3>
                     <p>담당: 지능범죄</p>
@@ -267,7 +270,7 @@
                 </div>
             </div>
             <div class="photo-item">
-                <img src="/images/img_ho2.jpg" alt="경찰관 2"/>
+                <img alt="경찰관 2" src="/images/img_ho2.jpg"/>
                 <div class="info-overlay">
                     <h3>경찰관 2</h3>
                     <p>담당: 절도범죄</p>
@@ -275,7 +278,7 @@
                 </div>
             </div>
             <div class="photo-item">
-                <img src="/images/img_ho3.jpg" alt="경찰관 3"/>
+                <img alt="경찰관 3" src="/images/img_ho3.jpg"/>
                 <div class="info-overlay">
                     <h3>경찰관 3</h3>
                     <p>담당: 강력범죄</p>
@@ -283,7 +286,7 @@
                 </div>
             </div>
             <div class="photo-item">
-                <img src="/images/img_ho4.jpg" alt="경찰관 4"/>
+                <img alt="경찰관 4" src="/images/img_ho4.jpg"/>
                 <div class="info-overlay">
                     <h3>경찰관 4</h3>
                     <p>담당: 마약범죄</p>
@@ -291,7 +294,7 @@
                 </div>
             </div>
             <div class="photo-item">
-                <img src="/images/img_ho5.jpg" alt="경찰관 5"/>
+                <img alt="경찰관 5" src="/images/img_ho5.jpg"/>
                 <div class="info-overlay">
                     <h3>경찰관 5</h3>
                     <p>담당: 교통범죄</p>

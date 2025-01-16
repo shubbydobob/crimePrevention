@@ -24,16 +24,16 @@ public class MainPageController {
         this.adminService = adminService;
     }
 
-    @GetMapping("/Report")
+    @GetMapping("/")
     public String HomePage(Model model) {
         logger.info("홈 페이지로 이동");
         return "/MainPage";
     }
 
-    @GetMapping("/AdminPage")
+    @GetMapping("/Dashboard")
     public String AdminPage() {
-        logger.info("관리자 페이지로 이동");
-        return "/AdminPage";
+        logger.info("모니터링 대시보드로 이동");
+        return "/Dashboard";
     }
 
     @GetMapping("/Admin")
@@ -68,7 +68,7 @@ public class MainPageController {
         logger.info("로그아웃 요청: 사용자 ID [{}]", session.getAttribute("username"));
         session.invalidate(); // 세션 초기화
         logger.info("로그아웃 완료. 세션 종료");
-        
+
 
         // 캐시 방지
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
