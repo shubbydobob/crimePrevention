@@ -18,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -37,11 +39,13 @@ public class BoardController {
     private AdminService adminService;
 
     @GetMapping("/Board")
-    public String getBoardPage(Model model) {
+    public String getBoardPage(HttpSession session, Model model) {
         List<Board> reports = boardService.getAllReports(); // 모든 신고 데이터 조회
         // 날짜를 포맷팅하여 새로운 필드 추가
         reports.forEach(report -> report.setFormattedDate(report.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
         model.addAttribute("reports", reports); // 조회 결과를 모델에 추가
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        model.addAttribute("isAdmin", isAdmin != null && isAdmin);
         logger.info("신고 현황 페이지 데이터: {}", reports);
         return "/Board/Board"; // 신고 현황 페이지 반환
     }
@@ -153,6 +157,73 @@ public class BoardController {
             board.setFormattedDate(formattedDate);
             logger.info("작성일 포맷팅 완료 - 접수번호: {}, 포맷된 날짜: {}", board.getId(), formattedDate);
         }
+    }
+
+    @PostMapping("/Board/{id}/reply")
+    @ResponseBody
+    public ResponseEntity<?> addReply(@PathVariable Long id, @RequestBody Map<String, String> payload, HttpSession session) {
+        logger.info("답변 추가 요청 - 신고 ID: {}", id);
+
+        // 관리자 여부 확인
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        if (isAdmin == null || !isAdmin) {
+            logger.warn("관리자 권한 없음");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("관리자 권한이 필요합니다.");
+        }
+
+        // 답변 내용 추출
+        String reply = payload.get("reply");
+        if (reply == null || reply.isEmpty()) {
+            logger.warn("답변 내용이 비어 있음");
+            return ResponseEntity.badRequest().body("답변 내용을 입력하세요.");
+        }
+
+        try {
+            // 답변 저장 처리
+            Board board = boardService.addReply(id, reply);
+            return ResponseEntity.ok(board);
+        } catch (Exception e) {
+            logger.error("답변 저장 실패 - 신고 ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변 저장 실패");
+        }
+    }
+
+    // 답변 수정 엔드포인트
+    @PatchMapping("Board/{id}/reply")
+    @ResponseBody
+    public ResponseEntity<?> updateReply(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        logger.info("[INFO] 답변 수정 요청 접수 - 신고 ID: {}", id);
+
+        String reply = payload.get("reply");
+        if (reply == null || reply.isEmpty()) {
+            logger.warn("[WARN] 답변 내용이 비어 있음 - 신고 ID: {}", id);
+            return ResponseEntity.badRequest().body("답변 내용이 비어 있습니다.");
+        }
+
+        try {
+            // 서비스 로직 호출하여 답변 수정
+            Board board = boardService.updateReply(id, reply);
+
+            // 응답 데이터 구성
+            Map<String, String> response = new HashMap<>();
+            response.put("reply", board.getReply());
+            response.put("processingStatus", board.getProcessingStatus());
+            logger.info("[INFO] 답변 수정 완료 - 신고 ID: {}", id);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("[ERROR] 답변 수정 실패 - 신고 ID: {}", id, e);
+            return ResponseEntity.status(500).body("답변 수정 실패");
+        }
+    }
+
+    // 답변 삭제
+    @DeleteMapping("/Board/{id}/reply")
+    @ResponseBody
+    public ResponseEntity<?> deleteReply(@PathVariable Long id) {
+        logger.info("답변 삭제 요청 - 신고 ID: {}", id);
+        boardService.deleteReply(id);
+        return ResponseEntity.ok("답변 삭제 완료");
     }
 }
 

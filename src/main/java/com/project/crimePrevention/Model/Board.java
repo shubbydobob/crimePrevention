@@ -21,8 +21,11 @@ public class Board {
     @Column(name = "phoneNumber", nullable = false)
     private String phoneNumber; // 신고자 연락처
 
+    @Column(name = "reportTitle", nullable = false)
+    private String reportTitle; // 신고 사유
+
     @Column(name = "content", nullable = false)
-    private String content; // 신고 사유
+    private String content; // 신고 내용
 
     @Column(name = "majorCategory", nullable = false)
     private String majorCategory; // 범죄 대분류
@@ -54,7 +57,10 @@ public class Board {
 
     @Transient
     private String formattedDate; // 포맷팅된 날짜를 저장하기 위한 필드
-    
+
+    @Column(name = "reply")
+    private String reply; // 답변 내용
+
     public Long getId() {
         return id;
     }
@@ -77,6 +83,14 @@ public class Board {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getReportTitle() {
+        return reportTitle;
+    }
+
+    public void setReportTitle(String reportTitle) {
+        this.reportTitle = reportTitle;
     }
 
     public String getContent() {
@@ -167,12 +181,21 @@ public class Board {
         this.formattedDate = formattedDate;
     }
 
+    public String getReply() {
+        return reply;
+    }
+
+    public void setReply(String reply) {
+        this.reply = reply;
+    }
+
     @Override
     public String toString() {
         return "Board{" +
                 "id=" + id +
                 ", reporter='" + reporter + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", reportTitle='" + reportTitle + '\'' +
                 ", content='" + content + '\'' +
                 ", majorCategory='" + majorCategory + '\'' +
                 ", middleCategory='" + middleCategory + '\'' +
@@ -184,6 +207,7 @@ public class Board {
                 ", createDate=" + createDate +
                 ", processingStatus='" + processingStatus + '\'' +
                 ", formattedDate='" + formattedDate + '\'' +
+                ", reply='" + reply + '\'' +
                 '}';
     }
 }

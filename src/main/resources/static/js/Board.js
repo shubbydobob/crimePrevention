@@ -1,18 +1,18 @@
 let isAdmin = false; // 전역 변수로 선언, 모든 함수에 접근 가능
 
 document.addEventListener("DOMContentLoaded", () => {
+     // 관리자 여부 확인
      isAdmin = document.body.getAttribute("data-is-admin") === "true"; // 관리자 여부 확인
-     console.log("관리자 여부:", isAdmin); // 디버깅용 로그
+     console.log("[INFO] 관리자 여부:", isAdmin);
 
-
-    // 로그아웃 버튼 표시/숨기기
+     // 관리자일 경우 로그아웃 버튼 표시
     const adminActions = document.getElementById("admin-actions");
     if (isAdmin) {
         adminActions.style.display = "block"; // 관리자일 경우 로그아웃 버튼 표시
-        console.log("관리자 로그인 상태: 로그아웃 버튼 표시");
+        console.log("[INFO] 관리자 로그인 상태: 로그아웃 버튼 표시");
     } else {
         adminActions.style.display = "none"; // 일반 사용자일 경우 로그아웃 버튼 숨기기
-        console.log("일반 사용자 상태: 로그아웃 버튼 숨김");
+        console.log("[INFO] 일반 사용자 상태: 로그아웃 버튼 숨김");
     }
 
     // 상세 보기 버튼 클릭 이벤트 추가
@@ -109,6 +109,7 @@ function openDetailModal(data) {
     document.getElementById('modal-id').textContent = data.id || 'N/A';
     document.getElementById('modal-reporter').textContent = data.reporter || 'N/A';
     document.getElementById('modal-phone').textContent = data.phoneNumber || 'N/A';
+    document.getElementById('modal-reportTitle').textContent = data.reportTitle || 'N/A';
     document.getElementById('modal-content').textContent = data.content || 'N/A';
     document.getElementById('modal-category').textContent = data.majorCategory || 'N/A';
     document.getElementById('modal-subcategory').textContent = data.middleCategory || 'N/A';
@@ -136,13 +137,27 @@ function openDetailModal(data) {
                     window.open(fileLink.href, '_blank');  // 썸네일 클릭 시 파일 보기
                 };
             } else {
-                fileThumbnail.style.display = 'none';  // 이미지가 아닐 경우 썸네일 숨기기
+                fileThumbnail.style.display = 'none';     // 이미지가 아닐 경우 썸네일 숨기기
             }
         } else {
-            fileLink.textContent = '파일 없음';  // 파일이 없을 경우 '파일 없음' 표시
-            fileLink.href = '#';  // 링크 비활성화
-            fileThumbnail.style.display = 'none';  // 썸네일 숨기기
+            fileLink.textContent = '파일 없음';            // 파일이 없을 경우 '파일 없음' 표시
+            fileLink.href = '#';                         // 링크 비활성화
+            fileThumbnail.style.display = 'none';        // 썸네일 숨기기
         }
+
+    // 관리자 여부에 따라 답변 영역 표시 여부 결정
+        const adminReplySection = document.getElementById("admin-reply-section");
+        if (isAdmin) {
+            adminReplySection.style.display = "block";           // 관리자일 경우 답변 영역 표시
+            adminReplySection.dataset.id = data.id;              // 접수 번호 저장
+            console.log("[INFO] 관리자 상태 - 답변 입력 필드 표시");
+        } else {
+            adminReplySection.style.display = "none";            // 일반 사용자일 경우 답변 영역 숨김
+            console.log("[INFO] 일반 사용자 상태 - 답변 입력 필드 숨김");
+        }
+    // 답변 표시 (현재 답변 영역)
+    displayReply(data);
+
     document.getElementById('detail-modal').style.display = 'flex';
     console.log("상세 보기 모달 열림. 데이터:", data); // 디버깅 로그
 }
@@ -154,16 +169,161 @@ function closeDetailModal() {
 }
 
 // 로그아웃 함수
-    function logout() {
-        fetch("/Logout", { method: "GET", credentials: "include" })
-            .then(response => {
-                if (response.ok) {
-                    console.log("로그아웃 성공");
-                    document.body.setAttribute("data-is-admin", "false"); // 관리자 상태 초기화
-                    window.location.href = "/Admin"; // 로그인 페이지로 이동
-                } else {
-                    console.error("로그아웃 실패");
-                }
-            })
-            .catch(error => console.error("로그아웃 요청 오류:", error));
+function logout() {
+     fetch("/Logout", { method: "GET", credentials: "include" })
+         .then(response => {
+              if (response.ok) {
+                 console.log("로그아웃 성공");
+                 document.body.setAttribute("data-is-admin", "false"); // 관리자 상태 초기화
+                 window.location.href = "/Admin"; // 로그인 페이지로 이동
+              } else {
+                 console.error("로그아웃 실패");
+              }
+         })
+         .catch(error => console.error("로그아웃 요청 오류:", error));
+}
+
+// 답변 표시 및 버튼 상태 관리
+function displayReply(data) {
+    const displayReplyText = document.getElementById("display-reply-text"); // 사용자용 답변 표시 영역
+    const replyText = document.getElementById("reply-text"); // 관리자용 답변 입력 필드
+    const submitButton = document.getElementById("submit-reply-button");
+    const editButton = document.getElementById("edit-reply-button");
+    const deleteButton = document.getElementById("delete-reply-button");
+    const saveButton = document.getElementById("save-reply-button");
+    const cancelButton = document.getElementById("cancel-edit-button");
+    const adminReplySection = document.getElementById("admin-reply-section"); // 관리자 답변 섹션
+
+    // 사용자와 관리자 모두 볼 수 있는 현재 답변 표시
+    if (data.reply) {
+        displayReplyText.textContent = data.reply; // 현재 답변 내용 표시
+        if (isAdmin) {
+            replyText.value = data.reply; // 관리자 수정용 필드 초기화
+            replyText.readOnly = true; // 항상 읽기 전용으로 초기화
+        }
+    } else {
+        displayReplyText.textContent = "답변이 아직 등록되지 않았습니다."; // 기본 메시지
+        if (isAdmin) {
+            replyText.value = ""; // 관리자 수정용 필드 초기화
+            replyText.readOnly = true;
+        }
     }
+
+    // 관리자 전용 버튼 및 섹션 상태 관리
+    if (isAdmin) {
+        // 관리자일 경우만 답변 섹션 표시
+        adminReplySection.style.display = "block";
+
+        if (data.reply) {
+            // 답변이 있는 경우
+            submitButton.style.display = "none"; // 답변 완료 버튼 숨기기
+            editButton.style.display = "inline"; // 수정 버튼 표시
+            deleteButton.style.display = "inline"; // 삭제 버튼 표시
+            saveButton.style.display = "none"; // 저장 버튼 숨기기
+            cancelButton.style.display = "none"; // 취소 버튼 숨기기
+        } else {
+            // 답변이 없는 경우
+            submitButton.style.display = "inline"; // 답변 완료 버튼 표시
+            editButton.style.display = "none"; // 수정 버튼 숨기기
+            deleteButton.style.display = "none"; // 삭제 버튼 숨기기
+            saveButton.style.display = "none"; // 저장 버튼 숨기기
+            cancelButton.style.display = "none"; // 취소 버튼 숨기기
+        }
+    } else {
+        // 일반 사용자일 경우 관리자 답변 섹션 숨기기
+        adminReplySection.style.display = "none";
+    }
+}
+// 답변 제출 처리
+function submitReply() {
+    const replyText = document.getElementById("reply-text").value;
+    const adminReplySection = document.getElementById("admin-reply-section");
+
+    // 접수번호 확인
+    const reportId = adminReplySection.dataset.id; // dataset.id에 저장된 접수번호 가져오기
+    if (!reportId) {
+        alert("접수번호가 유효하지 않습니다. 다시 시도하세요.");
+        console.error("[ERROR] 접수번호가 설정되지 않았습니다.");
+        return;
+    }
+
+    if (!replyText) {
+        alert("답변 내용을 입력하세요.");
+        console.error("[ERROR] 답변 내용이 비어 있습니다.");
+        return;
+    }
+
+    console.log("[INFO] 답변 제출 시작 - 신고 ID:", reportId, "답변 내용:", replyText);
+
+    fetch(`/Board/${reportId}/reply`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reply: replyText }),
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("답변 제출 실패");
+            return response.json();
+        })
+        .then(data => {
+            console.log("[INFO] 답변 제출 성공:", data);
+            alert("답변이 성공적으로 등록되었습니다.");
+            document.getElementById("modal-status").textContent = "답변 완료";
+            document.getElementById("reply-text").value = ""; // 입력 필드 초기화
+            document.getElementById("admin-reply-section").style.display = "none";
+             displayReply(data);
+        })
+        .catch(error => {
+            console.error("[ERROR] 답변 제출 오류:", error);
+            alert("답변 등록 중 오류가 발생했습니다.");
+        });
+}
+// 답변 수정
+function editReply() {
+    const replyText = document.getElementById("reply-text");
+    replyText.readOnly = false;
+    document.getElementById("save-reply-button").style.display = "inline";
+    document.getElementById("cancel-edit-button").style.display = "inline";
+    document.getElementById("edit-reply-button").style.display = "none";
+    document.getElementById("delete-reply-button").style.display = "none";
+}
+// 답변 저장
+function saveReply() {
+    const replyText = document.getElementById("reply-text").value;
+    const reportId = document.getElementById("modal-id").textContent;
+
+    fetch(`/Board/${reportId}/reply`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reply: replyText }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            alert("답변 수정 완료!");
+            displayReply(data);
+        })
+        .catch(error => console.error("답변 수정 오류:", error));
+}
+
+// 답변 수정 취소
+function cancelEditReply() {
+    const replyText = document.getElementById("reply-text");
+    replyText.readOnly = true;
+    displayReply({ reply: replyText.value });
+}
+
+// 답변 삭제
+function deleteReply() {
+    const reportId = document.getElementById("modal-id").textContent;
+
+    if (!confirm("정말로 삭제하시겠습니까?")) return;
+
+    fetch(`/Board/${reportId}/reply`, { method: "DELETE" })
+        .then(() => {
+            alert("답변 삭제 완료!");
+            displayReply({ reply: "" });
+            document.getElementById("modal-status").textContent = "처리 중";
+        })
+        .catch(error => console.error("답변 삭제 오류:", error));
+}

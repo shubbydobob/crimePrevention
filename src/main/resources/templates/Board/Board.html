@@ -6,7 +6,7 @@
     <link href="/css/Board.css" rel="stylesheet">
     <script defer src="/js/Board.js"></script>
 </head>
-<body th:attr="data-is-admin=${isAdmin}"> <!-- 관리자는 true, 일반 사용자는 false -->
+<body th:attr="data-is-admin=${session.isAdmin}"> <!-- 관리자는 true, 일반 사용자는 false -->
 <h1>신고 현황</h1>
 <!-- 관리자인 경우 로그아웃 버튼 표시 -->
 <div id="admin-actions" style="display: none;">
@@ -19,15 +19,15 @@
         <th>접수 번호</th>
         <th>신고 사유</th>
         <th>신고자</th>
-        <th>신고처리 현황</th>
         <th>작성일</th>
+        <th>신고 처리현황</th>
         <th>상세 보기</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="post : ${reports}">
         <td th:text="${post.id}"></td>
-        <td th:text="${post.content}"></td>
+        <td th:text="${post.reportTitle}"></td>
         <td th:text="${#strings.length(post.reporter) > 1 ? post.reporter.substring(0, 1) + '**' : '익명'}"></td>
         <td th:text="${post.formattedDate}"></td>
         <td th:text="${post.processingStatus}"></td>
@@ -58,7 +58,8 @@
         <p><strong>접수 번호:</strong> <span id="modal-id"></span></p>
         <p><strong>신고자:</strong> <span id="modal-reporter"></span></p>
         <p><strong>연락처:</strong> <span id="modal-phone"></span></p>
-        <p><strong>신고 사유:</strong> <span id="modal-content"></span></p>
+        <p><strong>신고 사유:</strong> <span id="modal-reportTitle"></span></p>
+        <p><strong>신고 내용:</strong> <span id="modal-content"></span></p>
         <p><strong>범죄 대분류:</strong> <span id="modal-category"></span></p>
         <p><strong>범죄 소분류:</strong> <span id="modal-subcategory"></span></p>
         <p><strong>범죄 발생 날짜:</strong> <span id="modal-date"></span></p>
@@ -72,6 +73,27 @@
         </p>
         <p><strong>작성일:</strong> <span id="modal-createDate"></span></p>
         <p><strong>처리 상태:</strong> <span id="modal-status"></span></p>
+
+        <!-- 답변 표시 영역 -->
+        <div id="reply-display-section">
+            <p><strong>현재 답변:</strong></p>
+            <div id="display-reply-text" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 50px;">
+                답변이 아직 등록되지 않았습니다.
+            </div>
+        </div>
+
+        <!-- 관리자 답변 영역 -->
+        <div id="admin-reply-section" style="display: none;">
+            <p><strong>관리자 답변:</strong></p>
+            <textarea id="reply-text" rows="4" cols="50" placeholder="답변 내용을 입력하거나 수정하세요" readonly></textarea>
+            <div id="reply-action-buttons" style="margin-top: 10px;">
+                <button id="submit-reply-button" onclick="submitReply()" style="display: none;">답변 완료</button>
+                <button id="edit-reply-button" onclick="editReply()" style="display: none;">수정</button>
+                <button id="delete-reply-button" onclick="deleteReply()" style="display: none;">삭제</button>
+                <button id="save-reply-button" onclick="saveReply()" style="display: none;">저장</button>
+                <button id="cancel-edit-button" onclick="cancelEditReply()" style="display: none;">취소</button>
+            </div>
+        </div>
     </div>
 </div>
 </body>
