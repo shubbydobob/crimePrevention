@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let crimePieChart;
   let dayOfWeekCrimeChart;
-  let crimeChart;
 
   // 현재 시간대 예상 범죄 TOP 3 데이터 로드 및 그래프 생성
   function fetchAndDrawTop3Crimes() {
@@ -66,12 +65,63 @@ document.addEventListener("DOMContentLoaded", function () {
     mainRegionSelect.addEventListener("change", function () {
       const selectedMainRegion = mainRegionSelect.value;
 
-      fetch(`/graphes/subregions/${selectedMainRegion}`)
-        .then(response => response.json())
-        .then(data => {
-          subRegionSelect.innerHTML = `<option value="">세부 지역을 선택하세요</option>`;
-          data.subregions.forEach(subregion => {
-            const option = document.createElement("option");
-            option.value = subregion;
-            option.textContent = subregion;
+      console.log("Main region selected:", selectedMainRegion); // 선택된 메인 지역 확인
 
+      if (selectedMainRegion) {
+        // Flask 서버에서 세부 지역 데이터를 가져옴
+        fetch(`/graphes/subregions/${selectedMainRegion}`)
+          .then(response => {
+            console.log("Response status:", response.status); // 응답 상태 확인
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log("Subregions data:", data); // 세부 지역 데이터 확인
+
+            // 세부 지역 초기화
+            subRegionSelect.innerHTML = '<option value="">세부 지역을 선택하세요</option>';
+
+            // 세부 지역 데이터 추가
+            data.subregions.forEach(subregion => {
+              const option = document.createElement("option");
+              option.value = subregion;
+              option.textContent = subregion;
+              subRegionSelect.appendChild(option);
+            });
+
+            console.log("Updated subRegionSelect:", subRegionSelect.innerHTML); // 드롭다운 상태 확인
+          })
+          .catch(error => {
+            console.error("Error fetching subregions:", error); // 오류 로그 출력
+          });
+      } else {
+        // 메인 지역 선택이 해제된 경우 세부 지역 초기화
+        subRegionSelect.innerHTML = '<option value="">세부 지역을 선택하세요</option>';
+      }
+    });
+  }
+
+  // 그래프 생성 함수
+  function drawPieChart(ctx, labels, data, chart) {
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            data: data,
+            backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+          },
+        ],
+      },
+    });
+  }
+
+  // 페이지 로드 시 함수 실행
+  fetchAndDrawTop3Crimes();
+  fetchAndDrawDayOfWeekCrime();
+  setupRegionSelects();
+}); // <-- DOMContentLoaded 이벤트 리스너 닫힘

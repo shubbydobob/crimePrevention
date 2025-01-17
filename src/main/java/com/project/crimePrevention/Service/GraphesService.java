@@ -3,7 +3,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -31,11 +31,12 @@ public class GraphesService {
     }
 
     // 특정 메인 지역의 세부 지역 리스트
-    public Map getSubRegions(String mainRegion) {
-        String url = UriComponentsBuilder.fromHttpUrl(FLASK_BASE_URL + "/subregions/{mainRegion}")
-                .buildAndExpand(mainRegion)
-                .toUriString();
+    public List<String> getMainRegions() {
+        // Flask 서버의 데이터를 요청
+        String url = FLASK_BASE_URL + "/";
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
-        return restTemplate.getForObject(url, Map.class);
+        // regions 데이터를 반환
+        return (List<String>) response.get("regions");
     }
 }

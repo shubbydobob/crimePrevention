@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
+import org.springframework.ui.Model;
 import java.util.Map;
 
 @Controller
@@ -18,7 +19,7 @@ public class GraphesController {
     // HTML 페이지 반환
     @GetMapping("/graphes.html")
     public String renderGraphesPage() {
-        return "graphes"; // "templates/graphes.html"을 반환
+        return "graphes"; // "templates/graphes.html" 반환
     }
 
     // 현재 시간대 예상 범죄 TOP 3 (REST API)
@@ -38,10 +39,14 @@ public class GraphesController {
     }
 
     // 특정 메인 지역의 세부 지역
-    @GetMapping("/subregions/{mainRegion}")
-    @ResponseBody // JSON 응답
-    public ResponseEntity<Map<String, Object>> getSubRegions(@PathVariable String mainRegion) {
-        Map<String, Object> response = graphesService.getSubRegions(mainRegion);
-        return ResponseEntity.ok(response);
+    @GetMapping("/graphes")
+    public String getGraphesPage(Model model) {
+        // Flask에서 메인 지역 데이터를 가져옴
+        List<String> regions = graphesService.getMainRegions();
+
+        // 데이터를 템플릿에 전달
+        model.addAttribute("regions", regions);
+
+        return "graphes"; // graphes.html 템플릿을 렌더링
     }
 }
