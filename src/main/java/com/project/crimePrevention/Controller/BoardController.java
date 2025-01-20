@@ -39,14 +39,39 @@ public class BoardController {
     private AdminService adminService;
 
     @GetMapping("/Board")
-    public String getBoardPage(HttpSession session, Model model) {
-        List<Board> reports = boardService.getAllReports(); // 모든 신고 데이터 조회
+    public String getBoardPage(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) Boolean all, // 전체 조회 여부
+                               HttpSession session, Model model) {
+        logger.info("[INFO] 신고 접수 페이지 요청 - 페이지 번호: {}, 전체 조회 여부: {}", page, all);
+
+        // ✅ 페이징 처리된 데이터 가져오기
+        List<Board> reports = boardService.getPagedReports(page, pageSize);
+        int totalPages = boardService.getTotalPages(pageSize);
+
+        if (Boolean.TRUE.equals(all)) {
+            // 전체 데이터 조회
+            reports = boardService.getAllReports();
+            logger.info("[INFO] 전체 신고 데이터 조회 - 총 개수: {}", reports.size());
+        } else {
+            // 페이징된 데이터 조회
+            reports = boardService.getPagedReports(page, pageSize);
+            totalPages = boardService.getTotalPages(pageSize);
+            logger.info("[INFO] 페이징 신고 데이터 조회 - 페이지: {}, 총 페이지 수: {}", page, totalPages);
+        }
+
         // 날짜를 포맷팅하여 새로운 필드 추가
         reports.forEach(report -> report.setFormattedDate(report.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
-        model.addAttribute("reports", reports); // 조회 결과를 모델에 추가
+
+        // 모델에 데이터 추가
+        model.addAttribute("reports", reports);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("all", all); // 전체 조회 여부 전달
+
+        // 관리자 여부 확인 후 모델에 추가
         Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
         model.addAttribute("isAdmin", isAdmin != null && isAdmin);
-        logger.info("신고 현황 페이지 데이터: {}", reports);
+
+        logger.info("[INFO] 신고 데이터 페이징 처리 완료 - 페이지: {}/{}", page, totalPages);
         return "/Board/Board"; // 신고 현황 페이지 반환
     }
 

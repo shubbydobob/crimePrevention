@@ -27,14 +27,13 @@ public class MainPageController {
     @GetMapping("/")
     public String HomePage(Model model) {
         logger.info("홈 페이지로 이동");
-        logger.info("홈 페이지로 이동");
         return "/MainPage";
     }
 
-    @GetMapping("/Dashboard")
+    @GetMapping("/graphes")
     public String AdminPage() {
         logger.info("모니터링 대시보드로 이동");
-        return "/Dashboard";
+        return "/graphes";
     }
 
     @GetMapping("/Admin")

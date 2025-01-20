@@ -38,7 +38,21 @@
     </tr>
     </tbody>
 </table>
+<div class="pagination">
+    <!-- 이전 페이지 버튼 -->
+    <button th:onclick="'loadPageData(' + (${currentPage - 1}) + ')'"
+            th:disabled="${currentPage == 1}">이전
+    </button>
 
+    <!-- 페이지 번호 표시 -->
+    <span>페이지 <span id="currentPageText" th:text="${currentPage}"></span> / <span id="totalPagesText"
+                                                                                  th:text="${totalPages}"></span></span>
+
+    <!-- 다음 페이지 버튼 -->
+    <button th:onclick="'loadPageData(' + (${currentPage + 1}) + ')'"
+            th:disabled="${currentPage == totalPages}">다음
+    </button>
+</div>
 <!-- 비밀번호 입력 모달 -->
 <div class="modal" id="password-modal" style="display: none;">
     <div class="modal-container">
@@ -77,7 +91,8 @@
         <!-- 답변 표시 영역 -->
         <div id="reply-display-section">
             <p><strong>현재 답변:</strong></p>
-            <div id="display-reply-text" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 50px;">
+            <div id="display-reply-text"
+                 style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 50px;">
                 답변이 아직 등록되지 않았습니다.
             </div>
         </div>

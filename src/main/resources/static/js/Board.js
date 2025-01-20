@@ -1,4 +1,6 @@
 let isAdmin = false; // 전역 변수로 선언, 모든 함수에 접근 가능
+let cuurentPage = 1; // 현재 페이지 저장
+const pageSize = 10; // 페이지당 표시할 데이터 개수
 
 document.addEventListener("DOMContentLoaded", () => {
      // 관리자 여부 확인
@@ -97,6 +99,75 @@ function validatePassword() {
         });
 }
 
+// 페이지 데이터를 불러오는 함수
+function loadPageData(page){
+    console.log(`[INFO] 페이지 데이터 요청: 페이지 ${page}`);
+    fetch(`/Board?page=${page}&size=${pageSize}`)
+        .then(response => {
+           if (!response.ok) throw new Error("서버 데이터 로드 실패");
+           return response.text();  // 🔥 Thymeleaf는 JSON이 아니라 HTML을 반환하기 때문에 text() 사용!
+        })
+       .then(html => {
+                   document.documentElement.innerHTML = html; // 🚀 페이지 전체를 업데이트하여 페이징 적용
+               })
+               .catch(error => console.error("데이터 로드 오류:", error));
+       }
+
+// 게시글 데이터를 HTML에 표시하는 함수
+function displayBoardData(posts) {
+    const boardContainer = document.getElementById("board-container");
+    boardContainer.innerHTML = ""; // 기존 데이터 초기화
+
+    posts.forEach(post => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${post.id}</td>
+            <td>${post.reportTitle}</td>
+            <td>${post.reporter}</td>
+            <td>${post.formattedDate}</td>
+            <td>
+                <button class="detail-button" data-id="${post.id}">상세보기</button>
+            </td>
+        `;
+        boardContainer.appendChild(row);
+    });
+    attachDetailEventListeners(); // 상세보기 이벤트 추가
+}
+
+// 페이징 UI 설정
+function setupPagination(totalPages, currentPage) {
+    const paginationContainer = document.getElementById("pagination");
+    paginationContainer.innerHTML = ""; // 기존 버튼 제거
+
+    if (totalPages <= 1) return; // 페이지가 1개 이하이면 페이징 필요 없음
+
+    // 이전 페이지 버튼
+    if (currentPage > 1) {
+        const prevButton = document.createElement("button");
+        prevButton.textContent = "이전";
+        prevButton.onclick = () => loadPageData(currentPage - 1); // 잘못된 괄호 수정
+        paginationContainer.appendChild(prevButton);
+    }
+
+    // 페이지 번호 버튼
+    for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement("button");
+        pageButton.textContent = i;
+        if (i === currentPage) {
+            pageButton.classList.add("active");
+        }
+        pageButton.onclick = () => loadPageData(i); // 함수 실행 오류 수정
+        paginationContainer.appendChild(pageButton);
+    }
+
+    // 다음 페이지 버튼
+    if (currentPage < totalPages) {
+        const nextButton = document.createElement("button");
+        nextButton.textContent = "다음";
+        nextButton.onclick = () => loadPageData(currentPage + 1);
+        paginationContainer.appendChild(nextButton);
+    }
+}
 // 상세 보기 모달 열기
 function openDetailModal(data) {
 

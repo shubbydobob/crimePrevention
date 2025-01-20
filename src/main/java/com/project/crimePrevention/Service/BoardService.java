@@ -5,6 +5,9 @@ import com.project.crimePrevention.Repository.BoardRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,6 +39,19 @@ public class BoardService {
     public List<Board> getAllReports() {
         logger.info("모든 신고 데이터 조회 요청");
         return boardRepository.findAll();
+    }
+
+    // 신고 목록 페이징 처리
+    public List<Board> getPagedReports(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize); // 페이지는 0부터 시작
+        Page<Board> pagedResult = boardRepository.findAll(pageable);
+        return pagedResult.getContent();
+    }
+
+    // 전체 페이지 수 계산
+    public int getTotalPages(int pageSize) {
+        long totalItems = boardRepository.count(); // 총 데이터 개수 조회
+        return (int) Math.ceil((double) totalItems / pageSize);
     }
 
     // 해당 접수 번호에 대한 신고 데이터 조회

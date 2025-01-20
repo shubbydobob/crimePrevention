@@ -1,98 +1,31 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/css/Graphes.css" rel="stylesheet">
     <title>조건별 범죄 예측 모니터링</title>
-    <style>
-        body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f4f4;
-          margin: 0;
-          padding: 0;
-          width: 1800px;
-          margin: auto;
-        }
-
-        header {
-          background-color: #26969c;
-          color: white;
-          text-align: center;
-          width: 100%; /* 전체 화면 너비로 설정 */
-
-        }
-
-        .content {
-          padding: 20px;
-          max-width: 1500px;
-          margin: 0 auto;
-          display: flex;
-          flex-direction: column; /* 수직 방향 */
-          align-items: center; /* 수평 중앙 정렬 */
-          gap: 20px;
-        }
-
-        h2 {
-          text-align: center;
-        }
-
-        .charts-container {
-          display: flex;
-          flex-wrap: nowrap;
-          gap: 20px;
-          justify-content: space-around;
-          width: 100%;
-        }
-
-        .chart-box {
-          flex: 1;
-          min-width: 300px;
-          max-width: 400px;
-          text-align: center;
-
-        }
-
-        canvas {
-          width: 100%;
-          height: auto;
-        }
-
-
-
-        #crime-graph{
-          width: 100%;
-        }
-
-
-    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="/js/graphes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
 <header>
     <h1>조건별 범죄 예측 모니터링</h1>
 </header>
-
 <div class="content">
-
-
     <div class="charts-container">
-
-
         <!-- 2. 시간대별 범죄 발생률 -->
         <div class="chart-box">
             <h3>현재 시간대 예상 범죄 TOP 3</h3>
             <canvas id="crimePieChart"></canvas>
         </div>
-
-
         <!-- 3. 요일별 범죄 발생률 -->
         <div class="chart-box">
             <h3>현재 요일 예상 범죄 TOP 3</h3>
             <canvas id="dayOfWeekCrimeChart"></canvas>
         </div>
-
-
         <!-- 4. 지역별 범죄 발생률 비교 -->
         <div class="chart-box">
             <h3>2023 지역별 범죄 TOP 5 조회</h3>
@@ -102,30 +35,19 @@
                     <option value="">메인 지역을 선택하세요</option>
                     <!-- Thymeleaf 문법 사용 -->
                     <th:block th:each="region : ${regions}">
-                        <option th:value="${region}" th:text="${region}"></option>
+                        <option th:text="${region}" th:value="${region}"></option>
                     </th:block>
                 </select>
-
                 <label for="subRegionSelect">세부 지역 선택:</label>
                 <select id="subRegionSelect">
                     <option value="">세부 지역을 선택하세요</option>
                 </select>
-
                 <div id="graph-container">
-                    <canvas id="crimeChart" width="400" height="400"></canvas>
+                    <canvas height="400" id="crimeChart" width="400"></canvas>
                 </div>
             </div>
-
-            <script src="/js/graphes.js"></script>
-
         </div>
-
-
-
-
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
 </html>

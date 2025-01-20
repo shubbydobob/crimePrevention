@@ -1,0 +1,57 @@
+   body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 0;
+          width: 1800px;
+          margin: auto;
+        }
+
+        header {
+          background-color: #26969c;
+          color: white;
+          text-align: center;
+          width: 100%; /* 전체 화면 너비로 설정 */
+
+        }
+
+        .content {
+          padding: 20px;
+          max-width: 1500px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column; /* 수직 방향 */
+          align-items: center; /* 수평 중앙 정렬 */
+          gap: 20px;
+        }
+
+        h2 {
+          text-align: center;
+        }
+
+        .charts-container {
+          display: flex;
+          flex-wrap: nowrap;
+          gap: 20px;
+          justify-content: space-around;
+          width: 100%;
+        }
+
+        .chart-box {
+          flex: 1;
+          min-width: 300px;
+          max-width: 400px;
+          text-align: center;
+
+        }
+
+        canvas {
+          width: 100%;
+          height: auto;
+        }
+
+
+
+        #crime-graph{
+          width: 100%;
+        }

@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+
 import org.springframework.ui.Model;
+
 import java.util.Map;
 
 @Controller
@@ -15,12 +18,6 @@ public class GraphesController {
 
     @Autowired
     private GraphesService graphesService;
-
-    // HTML 페이지 반환
-    @GetMapping("/graphes.html")
-    public String renderGraphesPage() {
-        return "graphes"; // "templates/graphes.html" 반환
-    }
 
     // 현재 시간대 예상 범죄 TOP 3 (REST API)
     @GetMapping("/current-time-top3/{timeRangeIndex}")

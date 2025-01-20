@@ -65,12 +65,12 @@ function updateSubCategories() {
     }
 }
 
-// 폼 제출
+// 신고 접수 제출
 document.getElementById('reportForm').addEventListener('submit', function (event) {
     event.preventDefault(); // 기본 폼 제출 방지
     console.log('폼 제출 이벤트 발생'); // 디버깅 로그
 
-    // 폼 데이터 수집
+    // 신고 정보 데이터 수집
     const formData = new FormData(this);
     console.log('폼 데이터:', Array.from(formData.entries())); // 폼 데이터 로그
 
