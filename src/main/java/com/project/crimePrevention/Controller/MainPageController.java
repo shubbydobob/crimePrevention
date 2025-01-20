@@ -27,6 +27,7 @@ public class MainPageController {
     @GetMapping("/")
     public String HomePage(Model model) {
         logger.info("홈 페이지로 이동");
+        logger.info("홈 페이지로 이동");
         return "/MainPage";
     }
 
