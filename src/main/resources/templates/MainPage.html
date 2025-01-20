@@ -6,6 +6,7 @@
     <title>범죄 상황 예측 모니터링</title>
     <link href="/css/MainPage.css" rel="stylesheet">
     <script defer src="/js/MainPage.js"></script>
+
 </head>
 <body>
 <div class="background-ad">
@@ -27,8 +28,6 @@
     <div class="header-line"></div> <!-- 선 추가 -->
     <nav>
         <a href="/Board" target="_blank">🌟신고접수 (익명) 현황 게시판🌟</a>
-        <a href="#">고객센터</a>
-        <a href="chatbot.html">요봇</a>
     </nav>
 </header>
 
@@ -127,6 +126,9 @@
                             <span class="report-close-btn" onclick="closeReportModal()">&times;</span>
                             <h2>신고 접수</h2>
                             <form enctype="multipart/form-data" id="reportForm">
+
+                                <button onclick="startNaverAuth()" type="button">네이버 본인인증</button>
+
                                 <!-- 신고자 정보 -->
                                 <label for="reporter">신고자:</label>
                                 <input id="reporter" name="reporter" placeholder="신고자 이름" required type="text">
@@ -135,6 +137,7 @@
                                 <label for="phoneNumber">신고자 연락처</label>
                                 <input id="phoneNumber" name="phoneNumber" placeholder="-를 빼고 입력해주세요" required
                                        type="text">
+
                                 <!-- 신고 제목 -->
                                 <label for="reportTitle">신고 사유:</label>
                                 <input id="reportTitle" name="reportTitle" placeholder="신고 사유를 입력해주세요." type="text">
@@ -304,5 +307,6 @@
         </div>
     </div>
 </main>
+<script defer src="/js/NaverAuth.js"></script>
 </body>
 </html>

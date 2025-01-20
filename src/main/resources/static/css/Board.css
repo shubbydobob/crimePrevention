@@ -1,7 +1,16 @@
-/* 신고 현황 게시판 */
+/* 신고 현황 컨테이너 중앙 정렬 (위쪽 간격 조정) */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 수평 가운데 정렬 */
+    min-height: 100vh;
+    padding-top: 20px; /* 위쪽 여백 조정 */
+}
+
+/* 신고 현황 테이블 중앙 정렬 */
 table {
-    width: 90%;
-    margin: 20px auto;
+    width: 80%;
+    margin: 10px auto; /* 위쪽 간격을 줄이기 위해 margin 조정 */
     border-collapse: collapse;
     font-size: 14px;
 }
@@ -21,6 +30,7 @@ tbody tr:hover {
     background-color: #f1f1f1;
 }
 
+/* 버튼 스타일 */
 button {
     padding: 5px 10px;
     background-color: #26969c;
@@ -35,9 +45,31 @@ button:hover {
     background-color: #1f7a81;
 }
 
+/* 페이징 버튼 중앙 정렬 및 간격 조정 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px; /* 위쪽 간격 줄이기 */
+}
+
+.pagination button {
+    margin: 0 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #26969c;
+    border-radius: 5px;
+}
+
+.pagination span {
+    margin: 0 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
 /* 모달 */
 .modal {
-    display: none; /* 기본적으로 숨김 */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;

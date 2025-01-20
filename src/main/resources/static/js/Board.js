@@ -270,13 +270,12 @@ function displayReply(data) {
         displayReplyText.textContent = data.reply; // 현재 답변 내용 표시
         if (isAdmin) {
             replyText.value = data.reply; // 관리자 수정용 필드 초기화
-            replyText.readOnly = true; // 항상 읽기 전용으로 초기화
+            replyText.readOnly = false; // 항상 읽기 전용으로 초기화
         }
     } else {
         displayReplyText.textContent = "답변이 아직 등록되지 않았습니다."; // 기본 메시지
         if (isAdmin) {
             replyText.value = ""; // 관리자 수정용 필드 초기화
-            replyText.readOnly = true;
         }
     }
 
@@ -354,6 +353,7 @@ function submitReply() {
 function editReply() {
     const replyText = document.getElementById("reply-text");
     replyText.readOnly = false;
+    replyText.focus(); // 입력 가능하도록 커서 포커스 설정
     document.getElementById("save-reply-button").style.display = "inline";
     document.getElementById("cancel-edit-button").style.display = "inline";
     document.getElementById("edit-reply-button").style.display = "none";

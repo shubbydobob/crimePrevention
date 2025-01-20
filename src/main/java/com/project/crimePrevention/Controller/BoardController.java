@@ -39,7 +39,9 @@ public class BoardController {
     private AdminService adminService;
 
     @GetMapping("/Board")
-    public String getBoardPage(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) Boolean all, // 전체 조회 여부
+    public String getBoardPage(@RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "10") int pageSize,
+                               @RequestParam(required = false) Boolean all, // 전체 조회 여부
                                HttpSession session, Model model) {
         logger.info("[INFO] 신고 접수 페이지 요청 - 페이지 번호: {}, 전체 조회 여부: {}", page, all);
 

@@ -54,7 +54,7 @@ public class MainPageController {
             session.setAttribute("isAdmin", true); // 관리자 권한 설정
             session.setAttribute("username", admin);
             logger.info("로그인 성공: 관리자 ID [{}]", admin);
-            return "redirect:/Report";
+            return "redirect:/";
         } else {
             redirectAttributes.addFlashAttribute("error", "아이디나 비밀번호가 잘못되었습니다.");
             logger.warn("로그인 실패: 관리자 ID [{}]", admin);

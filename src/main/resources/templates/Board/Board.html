@@ -18,6 +18,7 @@
     <tr>
         <th>접수 번호</th>
         <th>신고 사유</th>
+        <th>범죄 분류</th>
         <th>신고자</th>
         <th>작성일</th>
         <th>신고 처리현황</th>
@@ -28,6 +29,7 @@
     <tr th:each="post : ${reports}">
         <td th:text="${post.id}"></td>
         <td th:text="${post.reportTitle}"></td>
+        <td th:text="${post.majorCategory}"></td>
         <td th:text="${#strings.length(post.reporter) > 1 ? post.reporter.substring(0, 1) + '**' : '익명'}"></td>
         <td th:text="${post.formattedDate}"></td>
         <td th:text="${post.processingStatus}"></td>
@@ -100,7 +102,7 @@
         <!-- 관리자 답변 영역 -->
         <div id="admin-reply-section" style="display: none;">
             <p><strong>관리자 답변:</strong></p>
-            <textarea id="reply-text" rows="4" cols="50" placeholder="답변 내용을 입력하거나 수정하세요" readonly></textarea>
+            <textarea id="reply-text" rows="4" cols="50" placeholder="답변 내용을 입력하거나 수정하세요"></textarea>
             <div id="reply-action-buttons" style="margin-top: 10px;">
                 <button id="submit-reply-button" onclick="submitReply()" style="display: none;">답변 완료</button>
                 <button id="edit-reply-button" onclick="editReply()" style="display: none;">수정</button>
