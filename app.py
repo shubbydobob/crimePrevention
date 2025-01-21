@@ -196,7 +196,7 @@ def update_predictions_in_mysql():
         else:
             #마지막 업데이트 시간 확인
             cursor.execute("select last_update_time2 from time_status where id=1")
-            last_update_time2_result = cursor.fetchoone()
+            last_update_time2_result = cursor.fetchone()
             if last_update_time2_result and last_update_time2_result['last_update_time2']:
                 last_update_time2 = datetime.strptime(str(last_update_time2_result['last_update_time2']),"%Y-%m-%d %H:%M:%S")
             else:
@@ -284,13 +284,13 @@ def current_time_top3(time_range_index):
             return jsonify({"labels": [], "data": []})
 
         # 예측값에서 오늘의 범죄 데이터 추출
-        current_day_index = last_update_time2.weekday()
+        current_day_index = time_range_index
         predicted_current_day = {}
         
         for row in predictions2:
             try:
                 prediction_data2 = json.loads(row['prediction2'])
-                predicted_current_day[row['crime_type']] = prediction_data2[current_day_index]
+                predicted_current_day[row['crime_type2']] = prediction_data2[current_day_index]
             except (json.JSONDecodeError, IndexError) as e:
                 print(f"Error processing prediction2 for {row['crime_type2']}: {e}")
                 continue
@@ -334,6 +334,8 @@ def init_database():
         prediction_date2 DATETIME
     )
     """)
+
+    
     
     db.commit()
     cursor.close()
