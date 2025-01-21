@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>관리자 로그인</title>
-    <link rel="stylesheet" href="/css/AdminLogin.css">
+    <link href="/css/AdminLogin.css" rel="stylesheet">
 </head>
+
 <body>
 <div class="login-container">
     <div class="titleArea">
@@ -15,11 +17,11 @@
         <form action="/AdminLogin" method="post">
             <div class="input-group">
                 <label for="admin">아이디:</label>
-                <input id="admin" name="admin" required type="text" placeholder="아이디 입력">
+                <input id="admin" name="admin" placeholder="아이디 입력" required type="text">
             </div>
             <div class="input-group">
                 <label for="password">비밀번호:</label>
-                <input id="password" name="password" required type="password" placeholder="비밀번호 입력">
+                <input id="password" name="password" placeholder="비밀번호 입력" required type="password">
             </div>
             <div class="button-group">
                 <button type="submit">로그인</button>
@@ -28,4 +30,5 @@
     </div>
 </div>
 </body>
+
 </html>

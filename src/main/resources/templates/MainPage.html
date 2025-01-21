@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -8,6 +9,7 @@
     <script defer src="/js/MainPage.js"></script>
 
 </head>
+
 <body>
 <div class="background-ad">
     <!-- 상단 슬라이드 광고 -->
@@ -72,8 +74,8 @@
         <div class="content-area">
             <!-- 토글 버튼 -->
             <div class="toggle-buttons">
-                <input checked class="toggle-input" id="serviceRadio" name="toggle"
-                       onclick="toggleService('service')" type="radio"/>
+                <input checked class="toggle-input" id="serviceRadio" name="toggle" onclick="toggleService('service')"
+                       type="radio"/>
                 <label class="toggle-label" for="serviceRadio">대민 서비스</label>
                 <input class="toggle-input" id="reportRadio" name="toggle" onclick="toggleService('report')"
                        type="radio"/>
@@ -86,7 +88,8 @@
                     <div class="nav-item">
                         <a class="nav-link" href="/graphes">
                             <i class="icon">📊</i>
-                            <p>조건별 범죄상황<br>예측 모니터링</p></a>
+                            <p>조건별 범죄상황<br>예측 모니터링</p>
+                        </a>
                     </div>
                     <div class="nav-item">
                         <i class="icon">📚</i>
@@ -179,8 +182,7 @@
                                     <label class="form-label" for="captcha">CAPTCHA</label>
                                     <div class="captcha-group">
                                         <img alt="Captcha" class="captcha-image"
-                                             onclick="this.src='/captcha?' + Math.random();"
-                                             src="/captcha">
+                                             onclick="this.src='/captcha?' + Math.random();" src="/captcha">
                                         <input id="captcha" name="captcha" placeholder="자동등록방지 숫자 입력" required
                                                type="text">
                                     </div>
@@ -231,8 +233,7 @@
                 <h2>범죄 상황 예측 및 대응 시스템 소개 영상</h2>
                 <div class="video-wrapper">
                     <!-- 유튜브 또는 로컬 파일 영상 -->
-                    <iframe allow="autoplay; encrypted-media" allowfullscreen
-                            frameborder="0"
+                    <iframe allow="autoplay; encrypted-media" allowfullscreen frameborder="0"
                             src="https://www.youtube.com/embed/example"></iframe>
                 </div>
             </div>
@@ -309,4 +310,5 @@
 </main>
 <script defer src="/js/NaverAuth.js"></script>
 </body>
+
 </html>

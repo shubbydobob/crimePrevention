@@ -66,7 +66,7 @@ function updateSubCategories() {
 }
 
 // 신고 접수 제출
-document.getElementById('reportForm').addEventListener('submit', function (event) {
+document.getElementById('reportForm').addEventListener('submit', function(event) {
     event.preventDefault(); // 기본 폼 제출 방지
     console.log('폼 제출 이벤트 발생'); // 디버깅 로그
 
@@ -76,9 +76,9 @@ document.getElementById('reportForm').addEventListener('submit', function (event
 
     // 서버로 데이터 전송 (예: REST API 호출)
     fetch('/Board', {
-        method: 'POST',
-        body: formData
-    })
+            method: 'POST',
+            body: formData
+        })
         .then(response => {
             console.log('서버 응답 상태 코드:', response.status); // 응답 상태 코드 로그
             if (response.ok) {
@@ -96,12 +96,12 @@ document.getElementById('reportForm').addEventListener('submit', function (event
 });
 
 function goToBoardPage() {
-              try {
-                   window.location.href = "/Board"; // Board 페이지로 이동
-               } catch (e) {
-                   console.error("페이지 이동 중 오류 발생:", e);
-               }
-        }
+    try {
+        window.location.href = "/Board"; // Board 페이지로 이동
+    } catch (e) {
+        console.error("페이지 이동 중 오류 발생:", e);
+    }
+}
 
 // Toggle between the service and report content
 function toggleService(type) {
@@ -122,5 +122,3 @@ function toggleService(type) {
         serviceLabel.classList.remove('active');
     }
 }
-
-

@@ -42,37 +42,37 @@ function handleNaverCallback() {
 
     console.log("[INFO] 본인인증 성공 - Code:", code, "State:", state);
 
-   // ✅ 네이버 사용자 정보 가져오기 요청 (팝업 창 내부)
-       fetch(`/api/naver/auth/callback?code=${code}&state=${state}`)
-           .then(response => response.json())
-           .then(data => {
-               if (data.success) {
-                   console.log("[INFO] 본인인증 성공 - 이름:", data.reporter, ", 연락처:", data.phoneNumber);
+    // ✅ 네이버 사용자 정보 가져오기 요청 (팝업 창 내부)
+    fetch(`/api/naver/auth/callback?code=${code}&state=${state}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("[INFO] 본인인증 성공 - 이름:", data.reporter, ", 연락처:", data.phoneNumber);
 
-                   // ✅ 부모 창으로 인증 정보를 전달
-                   if (window.opener) {
-                       console.log("[INFO] 부모 창에 본인인증 데이터 전달 시도...");
-                       window.opener.postMessage({
-                           type: "NAVER_AUTH_SUCCESS",
-                           reporter: data.reporter,
-                           phoneNumber: data.phoneNumber
-                       }, "*");
+                // ✅ 부모 창으로 인증 정보를 전달
+                if (window.opener) {
+                    console.log("[INFO] 부모 창에 본인인증 데이터 전달 시도...");
+                    window.opener.postMessage({
+                        type: "NAVER_AUTH_SUCCESS",
+                        reporter: data.reporter,
+                        phoneNumber: data.phoneNumber
+                    }, "*");
 
-                  setTimeout(() => {
-                                          window.close(); // JSON 응답 창 닫기
-                                      }, 500); // 0.5초 후 자동 닫힘
-                                  } else {
-                                      console.error("[ERROR] 부모 창이 존재하지 않습니다.");
-                                  }
-                              } else {
-                                  alert("본인인증 실패: " + data.message);
-                              }
-                          })
-                          .catch(error => console.error("[ERROR] 본인인증 확인 실패:", error));
-                  }
+                    setTimeout(() => {
+                        window.close(); // JSON 응답 창 닫기
+                    }, 500); // 0.5초 후 자동 닫힘
+                } else {
+                    console.error("[ERROR] 부모 창이 존재하지 않습니다.");
+                }
+            } else {
+                alert("본인인증 실패: " + data.message);
+            }
+        })
+        .catch(error => console.error("[ERROR] 본인인증 확인 실패:", error));
+}
 
 // ✅ 부모 창에서 네이버 본인인증 결과 수신 및 UI 업데이트
-window.addEventListener("message", function (event) {
+window.addEventListener("message", function(event) {
     console.log("[INFO] 부모 창에서 `postMessage` 이벤트 수신:", event.data);
 
     if (event.data.type === "NAVER_AUTH_SUCCESS") {

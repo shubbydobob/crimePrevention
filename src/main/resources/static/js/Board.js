@@ -47,20 +47,20 @@ function openPasswordModal(reportId) {
     selectedReportId = reportId; // 클릭한 접수 번호 저장
 
     if (isAdmin) {
-            console.log("[INFO] 관리자 확인됨. 비밀번호 모달 없이 데이터 요청.");
-            fetchDataWithoutPassword(reportId);
-        } else {
-            console.log("[INFO] 일반 사용자 접근. 비밀번호 모달 열림." + reportId);
-            document.getElementById('password-modal').style.display = 'flex';
-        }
+        console.log("[INFO] 관리자 확인됨. 비밀번호 모달 없이 데이터 요청.");
+        fetchDataWithoutPassword(reportId);
+    } else {
+        console.log("[INFO] 일반 사용자 접근. 비밀번호 모달 열림." + reportId);
+        document.getElementById('password-modal').style.display = 'flex';
     }
+}
 
 // 관리자 : 비밀번호 없이 데이터 요청
 function fetchDataWithoutPassword(reportId) {
     fetch(`/Board/validatePassword/${reportId}`, {
-        method: "GET",
-        credentials: "include", // 세션 정보 포함
-    })
+            method: "GET",
+            credentials: "include", // 세션 정보 포함
+        })
         .then(response => {
             if (!response.ok) throw new Error("관리자 데이터 요청 실패.");
             return response.json();
@@ -210,9 +210,9 @@ function setupPagination(totalPages, currentPage) {
 function openDetailModal(data) {
 
     // 콘솔 로그로 받은 데이터를 출력하여 확인
-    console.log("받아온 데이터:", data);  // 받은 전체 데이터
-    console.log("CreateDate:", data.createDate);  // 생성 날짜 확인
-    console.log("FormattedDate:", data.formattedDate);  // 포맷팅된 날짜 확인
+    console.log("받아온 데이터:", data); // 받은 전체 데이터
+    console.log("CreateDate:", data.createDate); // 생성 날짜 확인
+    console.log("FormattedDate:", data.formattedDate); // 포맷팅된 날짜 확인
 
     // 상세 정보를 모달에 표시 (필드마다 기본값을 'N/A'로 설정하여 데이터가 없을 경우를 대비)
     document.getElementById('modal-id').textContent = data.id || 'N/A';
@@ -233,37 +233,37 @@ function openDetailModal(data) {
     const fileThumbnail = document.getElementById("modal-thumbnail");
 
     // 파일 링크를 설정
-        if (data.filePath) {
-            fileLink.textContent = '파일 보기';  // 파일 링크 텍스트
-            fileLink.href = `src/main/resources/static/uploads/${data.filePath}`;  // 파일 경로 설정
-            fileThumbnail.style.display = 'block';  // 이미지 파일일 경우 썸네일 표시
+    if (data.filePath) {
+        fileLink.textContent = '파일 보기'; // 파일 링크 텍스트
+        fileLink.href = `src/main/resources/static/uploads/${data.filePath}`; // 파일 경로 설정
+        fileThumbnail.style.display = 'block'; // 이미지 파일일 경우 썸네일 표시
 
-            // 파일이 이미지일 경우 썸네일을 미리 보여주기
-            const fileExtension = data.filePath.split('.').pop().toLowerCase();
-            if (["jpg", "jpeg", "png", "gif", "bmp"].includes(fileExtension)) {
-                fileThumbnail.src = `src/main/resources/static/uploads/${data.filePath}`;  // 썸네일 이미지 경로
-                fileThumbnail.onclick = function () {
-                    window.open(fileLink.href, '_blank');  // 썸네일 클릭 시 파일 보기
-                };
-            } else {
-                fileThumbnail.style.display = 'none';     // 이미지가 아닐 경우 썸네일 숨기기
-            }
+        // 파일이 이미지일 경우 썸네일을 미리 보여주기
+        const fileExtension = data.filePath.split('.').pop().toLowerCase();
+        if (["jpg", "jpeg", "png", "gif", "bmp"].includes(fileExtension)) {
+            fileThumbnail.src = `src/main/resources/static/uploads/${data.filePath}`; // 썸네일 이미지 경로
+            fileThumbnail.onclick = function() {
+                window.open(fileLink.href, '_blank'); // 썸네일 클릭 시 파일 보기
+            };
         } else {
-            fileLink.textContent = '파일 없음';            // 파일이 없을 경우 '파일 없음' 표시
-            fileLink.href = '#';                         // 링크 비활성화
-            fileThumbnail.style.display = 'none';        // 썸네일 숨기기
+            fileThumbnail.style.display = 'none'; // 이미지가 아닐 경우 썸네일 숨기기
         }
+    } else {
+        fileLink.textContent = '파일 없음'; // 파일이 없을 경우 '파일 없음' 표시
+        fileLink.href = '#'; // 링크 비활성화
+        fileThumbnail.style.display = 'none'; // 썸네일 숨기기
+    }
 
     // 관리자 여부에 따라 답변 영역 표시 여부 결정
-        const adminReplySection = document.getElementById("admin-reply-section");
-        if (isAdmin) {
-            adminReplySection.style.display = "block";           // 관리자일 경우 답변 영역 표시
-            adminReplySection.dataset.id = data.id;              // 접수 번호 저장
-            console.log("[INFO] 관리자 상태 - 답변 입력 필드 표시");
-        } else {
-            adminReplySection.style.display = "none";            // 일반 사용자일 경우 답변 영역 숨김
-            console.log("[INFO] 일반 사용자 상태 - 답변 입력 필드 숨김");
-        }
+    const adminReplySection = document.getElementById("admin-reply-section");
+    if (isAdmin) {
+        adminReplySection.style.display = "block"; // 관리자일 경우 답변 영역 표시
+        adminReplySection.dataset.id = data.id; // 접수 번호 저장
+        console.log("[INFO] 관리자 상태 - 답변 입력 필드 표시");
+    } else {
+        adminReplySection.style.display = "none"; // 일반 사용자일 경우 답변 영역 숨김
+        console.log("[INFO] 일반 사용자 상태 - 답변 입력 필드 숨김");
+    }
     // 답변 표시 (현재 답변 영역)
     displayReply(data);
 
@@ -279,17 +279,20 @@ function closeDetailModal() {
 
 // 로그아웃 함수
 function logout() {
-     fetch("/Logout", { method: "GET", credentials: "include" })
-         .then(response => {
-              if (response.ok) {
-                 console.log("로그아웃 성공");
-                 document.body.setAttribute("data-is-admin", "false"); // 관리자 상태 초기화
-                 window.location.href = "/Admin"; // 로그인 페이지로 이동
-              } else {
-                 console.error("로그아웃 실패");
-              }
-         })
-         .catch(error => console.error("로그아웃 요청 오류:", error));
+    fetch("/Logout", {
+            method: "GET",
+            credentials: "include"
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("로그아웃 성공");
+                document.body.setAttribute("data-is-admin", "false"); // 관리자 상태 초기화
+                window.location.href = "/Admin"; // 로그인 페이지로 이동
+            } else {
+                console.error("로그아웃 실패");
+            }
+        })
+        .catch(error => console.error("로그아웃 요청 오류:", error));
 }
 
 // 답변 표시 및 버튼 상태 관리
@@ -364,12 +367,14 @@ function submitReply() {
     console.log("[INFO] 답변 제출 시작 - 신고 ID:", reportId, "답변 내용:", replyText);
 
     fetch(`/Board/${reportId}/reply`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ reply: replyText }),
-    })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                reply: replyText
+            }),
+        })
         .then(response => {
             if (!response.ok) throw new Error("답변 제출 실패");
             return response.json();
@@ -380,7 +385,7 @@ function submitReply() {
             document.getElementById("modal-status").textContent = "답변 완료";
             document.getElementById("reply-text").value = ""; // 입력 필드 초기화
             document.getElementById("admin-reply-section").style.display = "none";
-             displayReply(data);
+            displayReply(data);
         })
         .catch(error => {
             console.error("[ERROR] 답변 제출 오류:", error);
@@ -403,10 +408,14 @@ function saveReply() {
     const reportId = document.getElementById("modal-id").textContent;
 
     fetch(`/Board/${reportId}/reply`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reply: replyText }),
-    })
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                reply: replyText
+            }),
+        })
         .then(response => response.json())
         .then(data => {
             alert("답변 수정 완료!");
@@ -419,7 +428,9 @@ function saveReply() {
 function cancelEditReply() {
     const replyText = document.getElementById("reply-text");
     replyText.readOnly = true;
-    displayReply({ reply: replyText.value });
+    displayReply({
+        reply: replyText.value
+    });
 }
 
 // 답변 삭제
@@ -428,10 +439,14 @@ function deleteReply() {
 
     if (!confirm("정말로 삭제하시겠습니까?")) return;
 
-    fetch(`/Board/${reportId}/reply`, { method: "DELETE" })
+    fetch(`/Board/${reportId}/reply`, {
+            method: "DELETE"
+        })
         .then(() => {
             alert("답변 삭제 완료!");
-            displayReply({ reply: "" });
+            displayReply({
+                reply: ""
+            });
             document.getElementById("modal-status").textContent = "처리 중";
         })
         .catch(error => console.error("답변 삭제 오류:", error));

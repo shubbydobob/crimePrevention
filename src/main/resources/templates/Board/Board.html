@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>범죄 상황 예측 모니터링 및 신고 접수 현황 - 신고 접수 현황</title>
     <link href="/css/Board.css" rel="stylesheet">
     <script defer src="/js/Board.js"></script>
 </head>
+
 <body th:attr="data-is-admin=${session.isAdmin}"> <!-- 관리자는 true, 일반 사용자는 false -->
 <h1>신고 현황</h1>
 <!-- 관리자인 경우 로그아웃 버튼 표시 -->
 <div id="admin-actions" style="display: none;">
     <button onclick="logout()">로그아웃</button>
 </div>
-<p>여기에 신고 현황 데이터가 표시됩니다.</p>
 <table>
     <thead>
     <tr>

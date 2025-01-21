@@ -2,15 +2,18 @@
 body {
     display: flex;
     flex-direction: column;
-    align-items: center; /* 수평 가운데 정렬 */
+    align-items: center;
+    /* 수평 가운데 정렬 */
     min-height: 100vh;
-    padding-top: 20px; /* 위쪽 여백 조정 */
+    padding-top: 20px;
+    /* 위쪽 여백 조정 */
 }
 
 /* 신고 현황 테이블 중앙 정렬 */
 table {
     width: 80%;
-    margin: 10px auto; /* 위쪽 간격을 줄이기 위해 margin 조정 */
+    margin: 10px auto;
+    /* 위쪽 간격을 줄이기 위해 margin 조정 */
     border-collapse: collapse;
     font-size: 14px;
 }
@@ -20,7 +23,8 @@ thead tr {
     color: white;
 }
 
-th, td {
+th,
+td {
     border: 1px solid #ccc;
     padding: 10px;
     text-align: center;
@@ -50,7 +54,8 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 10px; /* 위쪽 간격 줄이기 */
+    margin-top: 10px;
+    /* 위쪽 간격 줄이기 */
 }
 
 .pagination button {

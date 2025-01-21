@@ -44,29 +44,23 @@ public class NaverAuthController {
     public ResponseEntity<Map<String, Object>> naverCallback(
             @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "state", required = false) String state) {
-
         if (code == null || state == null) {
             logger.error("[ERROR] 네이버 본인인증 코드 또는 state 값이 없습니다.");
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "code 또는 state가 없습니다."));
         }
-
         logger.info("[INFO] 네이버 로그인 코드 수신: {}", code);
-        logger.info("[INFO] 네이버 로그인 상태 수신: {}", state);
-
         // 네이버 Access Token 요청
         String accessToken = naverAuthService.getNaverAccessToken(code, state);
         if (accessToken == null) {
             logger.error("[ERROR] 네이버 Access Token 발급 실패");
             return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Access Token 발급 실패"));
         }
-
         // 네이버 사용자 정보 가져오기
         lastUserInfo = naverAuthService.getNaverUserInfo(accessToken);
         if (lastUserInfo.isEmpty()) {
             logger.error("[ERROR] 네이버 사용자 정보 조회 실패");
             return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "사용자 정보 조회 실패"));
         }
-
         logger.info("[INFO] 본인인증 성공 - 이름: {}, 연락처: {}", lastUserInfo.get("reporter"), lastUserInfo.get("phoneNumber"));
         return ResponseEntity.ok(Map.of("success", true, "reporter", lastUserInfo.get("reporter"), "phoneNumber", lastUserInfo.get("phoneNumber")));
     }
