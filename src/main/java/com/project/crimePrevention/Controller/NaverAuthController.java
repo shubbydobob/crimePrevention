@@ -73,6 +73,9 @@ public class NaverAuthController {
 
     @GetMapping("/user")
     public ResponseEntity<Map<String, Object>> getUserInfo() {
-        return ResponseEntity.ok(lastUserInfo);
+        if (lastUserInfo.isEmpty()) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "본인인증 정보 없음"));
+        }
+        return ResponseEntity.ok(Map.of("success", true, "reporter", lastUserInfo.get("reporter"), "phoneNumber", lastUserInfo.get("phoneNumber")));
     }
 }

@@ -25,7 +25,7 @@
         <th>상세 보기</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody id="board-container">
     <tr th:each="post : ${reports}">
         <td th:text="${post.id}"></td>
         <td th:text="${post.reportTitle}"></td>
@@ -40,20 +40,11 @@
     </tr>
     </tbody>
 </table>
-<div class="pagination">
-    <!-- 이전 페이지 버튼 -->
-    <button th:onclick="'loadPageData(' + (${currentPage - 1}) + ')'"
-            th:disabled="${currentPage == 1}">이전
-    </button>
-
-    <!-- 페이지 번호 표시 -->
-    <span>페이지 <span id="currentPageText" th:text="${currentPage}"></span> / <span id="totalPagesText"
-                                                                                  th:text="${totalPages}"></span></span>
-
-    <!-- 다음 페이지 버튼 -->
-    <button th:onclick="'loadPageData(' + (${currentPage + 1}) + ')'"
-            th:disabled="${currentPage == totalPages}">다음
-    </button>
+<!-- 페이징 UI -->
+<div id="pagination">
+    <button class="pagination-button" th:attr="data-page=${currentPage - 1}" th:if="${currentPage > 1}">이전</button>
+    <span>페이지 <span id="currentPageText" th:text="${currentPage}"></span> / <span id="totalPagesText" th:text="${totalPages}"></span></span>
+    <button class="pagination-button" th:attr="data-page=${currentPage + 1}" th:if="${currentPage < totalPages}">다음</button>
 </div>
 <!-- 비밀번호 입력 모달 -->
 <div class="modal" id="password-modal" style="display: none;">

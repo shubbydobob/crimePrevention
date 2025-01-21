@@ -1,41 +1,46 @@
-let isAdmin = false; // 전역 변수로 선언, 모든 함수에 접근 가능
-let cuurentPage = 1; // 현재 페이지 저장
+// 전역 변수 선언
+let isAdmin = false; // 관리자 여부 저장
+let currentPage = 1; // 현재 페이지
 const pageSize = 10; // 페이지당 표시할 데이터 개수
+let selectedReportId = null; // 선택된 신고 ID 저장
 
+// DOM이 로드된 후 실행
 document.addEventListener("DOMContentLoaded", () => {
-     // 관리자 여부 확인
-     isAdmin = document.body.getAttribute("data-is-admin") === "true"; // 관리자 여부 확인
-     console.log("[INFO] 관리자 여부:", isAdmin);
+    // 관리자 여부 확인
+    isAdmin = document.body.getAttribute("data-is-admin") === "true";
+    console.log("[INFO] 관리자 여부:", isAdmin);
 
-     // 관리자일 경우 로그아웃 버튼 표시
+    // 관리자인 경우 로그아웃 버튼 표시
     const adminActions = document.getElementById("admin-actions");
-    if (isAdmin) {
-        adminActions.style.display = "block"; // 관리자일 경우 로그아웃 버튼 표시
-        console.log("[INFO] 관리자 로그인 상태: 로그아웃 버튼 표시");
-    } else {
-        adminActions.style.display = "none"; // 일반 사용자일 경우 로그아웃 버튼 숨기기
-        console.log("[INFO] 일반 사용자 상태: 로그아웃 버튼 숨김");
+    if (adminActions) {
+        adminActions.style.display = isAdmin ? "block" : "none";
     }
 
-    // 상세 보기 버튼 클릭 이벤트 추가
-    const detailButtons = document.querySelectorAll(".detail-button");
-    detailButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            const id = button.getAttribute("data-id");
-            console.log("클릭한 접수 번호:", id); // 로그 출력
-            if (isAdmin) {
-                 console.log("관리자로 확인됨. 비밀번호 없이 데이터 요청.");
-                 fetchDataWithoutPassword(id); // 관리자일 경우 바로 데이터 요청
-            } else {
-                 console.log("일반 사용자 접근. 비밀번호 모달 열림.");
-                 openPasswordModal(id); // 일반 사용자는 비밀번호 모달 열기
+    // ✅ 페이지네이션 버튼 및 상세보기 버튼 클릭 이벤트 처리 (이벤트 위임)
+    document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        // ✅ 페이지네이션 버튼 클릭 처리
+        if (target.classList.contains("pagination-button")) {
+            const page = parseInt(target.getAttribute("data-page"));
+            if (!isNaN(page) && page > 0) {
+                console.log(`[INFO] 페이지 버튼 클릭됨: ${page}`);
+                loadPageData(page);
             }
-        });
+        }
+
+        // ✅ 상세보기 버튼 클릭 처리
+        if (target.classList.contains("detail-button")) {
+            const reportId = target.getAttribute("data-id");
+            console.log("[INFO] 상세보기 버튼 클릭됨 - 신고 ID:", reportId);
+            if (isAdmin) {
+                fetchDataWithoutPassword(reportId);
+            } else {
+                openPasswordModal(reportId);
+            }
+        }
     });
 });
-
-let selectedReportId = null; // 클릭한 접수 번호 저장
-
 // 비밀번호 모달 열기
 function openPasswordModal(reportId) {
     // 관리자 여부 확인 (HTML의 data-is-admin 속성 이용)
@@ -99,19 +104,50 @@ function validatePassword() {
         });
 }
 
-// 페이지 데이터를 불러오는 함수
-function loadPageData(page){
-    console.log(`[INFO] 페이지 데이터 요청: 페이지 ${page}`);
+// ✅ 페이지 데이터를 불러오는 함수 (수정됨)
+function loadPageData(page) {
+    console.log(`[INFO] 페이지 ${page} 데이터 요청 중...`);
+
     fetch(`/Board?page=${page}&size=${pageSize}`)
         .then(response => {
-           if (!response.ok) throw new Error("서버 데이터 로드 실패");
-           return response.text();  // 🔥 Thymeleaf는 JSON이 아니라 HTML을 반환하기 때문에 text() 사용!
+            if (!response.ok) throw new Error(`[ERROR] 서버 응답 오류: ${response.status}`);
+            return response.text();
         })
-       .then(html => {
-                   document.documentElement.innerHTML = html; // 🚀 페이지 전체를 업데이트하여 페이징 적용
-               })
-               .catch(error => console.error("데이터 로드 오류:", error));
-       }
+        .then(html => {
+            console.log(`[INFO] 페이지 ${page} 데이터 응답 완료`);
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+
+            const newBoardContainer = doc.getElementById("board-container");
+            const newPaginationContainer = doc.getElementById("pagination");
+
+            if (!newBoardContainer || !newPaginationContainer) {
+                throw new Error("[ERROR] 응답에서 필요한 데이터를 찾을 수 없습니다.");
+            }
+
+            // ✅ 기존 컨테이너 내용 업데이트
+            document.getElementById("board-container").innerHTML = newBoardContainer.innerHTML;
+            document.getElementById("pagination").innerHTML = newPaginationContainer.innerHTML;
+
+            // ✅ currentPage 업데이트 (Thymeleaf에서 업데이트된 값 가져오기)
+            const newCurrentPage = parseInt(doc.getElementById("currentPageText")?.textContent);
+            if (!isNaN(newCurrentPage)) {
+                currentPage = newCurrentPage;
+                console.log(`[INFO] 현재 페이지 업데이트됨: ${currentPage}`);
+            }
+
+            // ✅ totalPages 업데이트
+            const newTotalPages = parseInt(doc.getElementById("totalPagesText")?.textContent);
+            if (!isNaN(newTotalPages)) {
+                totalPages = newTotalPages;
+                console.log(`[INFO] 총 페이지 수 업데이트됨: ${totalPages}`);
+            }
+
+            console.log(`[INFO] 페이지 ${page} 데이터 업데이트 완료`);
+        })
+        .catch(error => console.error("[ERROR] 페이지 데이터 로드 실패:", error));
+}
 
 // 게시글 데이터를 HTML에 표시하는 함수
 function displayBoardData(posts) {
@@ -134,7 +170,6 @@ function displayBoardData(posts) {
     attachDetailEventListeners(); // 상세보기 이벤트 추가
 }
 
-// 페이징 UI 설정
 function setupPagination(totalPages, currentPage) {
     const paginationContainer = document.getElementById("pagination");
     paginationContainer.innerHTML = ""; // 기존 버튼 제거
@@ -145,7 +180,8 @@ function setupPagination(totalPages, currentPage) {
     if (currentPage > 1) {
         const prevButton = document.createElement("button");
         prevButton.textContent = "이전";
-        prevButton.onclick = () => loadPageData(currentPage - 1); // 잘못된 괄호 수정
+        prevButton.classList.add("pagination-button");
+        prevButton.setAttribute("data-page", currentPage - 1);
         paginationContainer.appendChild(prevButton);
     }
 
@@ -153,10 +189,11 @@ function setupPagination(totalPages, currentPage) {
     for (let i = 1; i <= totalPages; i++) {
         const pageButton = document.createElement("button");
         pageButton.textContent = i;
+        pageButton.classList.add("pagination-button");
+        pageButton.setAttribute("data-page", i);
         if (i === currentPage) {
             pageButton.classList.add("active");
         }
-        pageButton.onclick = () => loadPageData(i); // 함수 실행 오류 수정
         paginationContainer.appendChild(pageButton);
     }
 
@@ -164,7 +201,8 @@ function setupPagination(totalPages, currentPage) {
     if (currentPage < totalPages) {
         const nextButton = document.createElement("button");
         nextButton.textContent = "다음";
-        nextButton.onclick = () => loadPageData(currentPage + 1);
+        nextButton.classList.add("pagination-button");
+        nextButton.setAttribute("data-page", currentPage + 1);
         paginationContainer.appendChild(nextButton);
     }
 }

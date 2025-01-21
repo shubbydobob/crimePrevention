@@ -58,18 +58,18 @@ function handleNaverCallback() {
                            phoneNumber: data.phoneNumber
                        }, "*");
 
-                       window.close(); // 팝업 닫기
-                   } else {
-                       console.error("[ERROR] 부모 창이 존재하지 않습니다.");
-                   }
-               } else {
-                   alert("본인인증 실패: " + data.message);
-               }
-           })
-           .catch(error => {
-               console.error("[ERROR] 본인인증 확인 실패:", error);
-           });
-}
+                  setTimeout(() => {
+                                          window.close(); // JSON 응답 창 닫기
+                                      }, 500); // 0.5초 후 자동 닫힘
+                                  } else {
+                                      console.error("[ERROR] 부모 창이 존재하지 않습니다.");
+                                  }
+                              } else {
+                                  alert("본인인증 실패: " + data.message);
+                              }
+                          })
+                          .catch(error => console.error("[ERROR] 본인인증 확인 실패:", error));
+                  }
 
 // ✅ 부모 창에서 네이버 본인인증 결과 수신 및 UI 업데이트
 window.addEventListener("message", function (event) {
