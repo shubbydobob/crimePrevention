@@ -12,6 +12,7 @@ from datetime import datetime,timedelta
 import json
 from apscheduler.schedulers.background import BackgroundScheduler
 import traceback
+import time
 
 app = Flask(__name__)
 
@@ -118,29 +119,50 @@ def get_crime_data(main_region, sub_region):
     
     return jsonify(crime_data)
 
-# 현재 시간대 TOP 3 범죄 데이터 반환
-@app.route('/current_time_top3/<int:time_range_index>', methods=['GET'])
-def current_time_top3(time_range_index):
-    try:
-        # 데이터베이스 연결 및 데이터 로드
-        db = get_db_connection()
-        cursor = db.cursor()
-        query = """
-        SELECT Year, CrimeType, TimeRange, Count 
+#시간 그래프
+#LSTM 모델 학습 및 예측 함수
+def train_lstm_model2():
+
+    #데이터베이스에서 데이터 가져오기
+    db = get_db_connection()
+    cursor=db.cursor()
+
+    query = """
+    SELECT Year, CrimeType, TimeRange, Count 
         FROM CrimeStats 
         WHERE CrimeType IN ('살인기수', '살인미수등', '강도', '강간', '유사강간', '강제추행', 
                             '기타강간', '방화', '상해', '폭행', '체포 감금', '협박', 
                             '약취 유인', '폭력행위등', '공갈', '손괴', '사기');
         """
-        cursor.execute(query)
-        results = cursor.fetchall()
+    cursor.execute(query)
+    results = cursor.fetchall()
 
-        # 데이터프레임으로 변환
-        columns = ['Year', 'CrimeType', 'TimeRange', 'Count']
-        data = pd.DataFrame(results, columns=columns)
-        cursor.close()
-        db.close()
+    columns = ['Year', 'CrimeType', 'TimeRange', 'Count']
+    data = pd.DataFrame(results, columns=columns)
 
+    #데이터 전처리
+    data['TimeRange'] = data['TimeRange'].str.extract(r'(\d+):')[0].astype(int)
+    data_pivot = data.pivot_table(index=['Year','CrimeType'],columns=['TimeRange'],values='Count',fill_value=0)
+    train=data_pivot[data_pivot.index.get_level_values(0)<2020]
+    crime_types = train.index.get_level_values(1).unique()
+
+    #스케일링 및 LSTM 학습
+    scaler = MinMaxScaler()
+    results = {}
+    for crime_type in crime_types:
+        crime_data = train.xs(crime_type, level='CrimeType')
+        train_scaled = scaler.fit_transform(crime_data)
+
+        #시계열 데이터 형식 변환
+        X_train, y_train = [],[]
+
+
+
+
+# 현재 시간대 TOP 3 범죄 데이터 반환
+@app.route('/current_time_top3/<int:time_range_index>', methods=['GET'])
+def current_time_top3(time_range_index):
+  
         # 데이터 전처리
         data['TimeRange'] = data['TimeRange'].str.extract(r'(\d+):')[0].astype(int)
         data_pivot = data.pivot_table(index=['Year', 'CrimeType'], columns=['TimeRange'], values='Count', fill_value=0)
@@ -184,6 +206,7 @@ def current_time_top3(time_range_index):
         # 데이터 변환
         labels = [crime for crime, count in top_3_crimes]
         data = [count for crime, count in top_3_crimes]
+
     
 
     except Exception as e:
@@ -195,12 +218,11 @@ def current_time_top3(time_range_index):
 
 
 # 요일 그래프
-# MySQL 데이터베이스 연결 함수
-
-
 # LSTM 모델 학습 및 예측 함수
 def train_lstm_model():
     # 데이터베이스에서 데이터 가져오기
+    
+    
     db = get_db_connection()
     cursor = db.cursor()
     
@@ -256,11 +278,14 @@ def train_lstm_model():
     
     cursor.close()
     db.close()
+   
 
     return results
 
 # MySQL에 예측값을 업데이트하는 함수
 def update_predictions_in_mysql():
+    start_time = time.time()  # 실행 시간 측정 시작
+
     print("예측값 업데이트 시작")
     try: 
     # 마지막 업데이트 시간을 MySQL에서 가져옴
@@ -306,6 +331,8 @@ def update_predictions_in_mysql():
         else:
             print("예측값은 최신 상태입니다. MySQL에서 값을 불러옵니다")
 
+        
+
     except Exception as e:
         print(f"Error in update_predictions_in_mysql: {e}")
     finally:
@@ -313,6 +340,11 @@ def update_predictions_in_mysql():
             cursor.close()
         if db:
             db.close()
+
+    end_time = time.time()  # 실행 시간 측정 종료
+    execution_time = end_time - start_time  # 실행 시간 계산
+    
+    print(f"New Data loading time {execution_time:.2f} seconds")
 
 # 스케줄러 설정: 매일 자정에 예측값 업데이트
 scheduler = BackgroundScheduler()
@@ -342,7 +374,7 @@ def day_of_week_crime():
         # last_update_time이 dict인 경우 'last_update_time' 키로 값 추출
         if isinstance(last_update_time, dict):
             last_update_time = last_update_time['last_update_time']
-            print(f"Fetched last_update_time: {last_update_time}")
+            print(f"Fetched last_update_time: {last_update_time}")  
         else:
             print(f"last_update_time is not a dictionary: {last_update_time}")
             return jsonify({"labels": [], "data": []})
@@ -424,7 +456,7 @@ def init_database():
     db.commit()
     cursor.close()
     db.close()
-
+    
 if __name__ == '__main__':
     init_database()  # Initialize database tables
     update_predictions_in_mysql()  # Initial prediction update
