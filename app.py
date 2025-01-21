@@ -155,70 +155,197 @@ def train_lstm_model2():
 
         #시계열 데이터 형식 변환
         X_train, y_train = [],[]
-        
-        #됐나안됐나.,,,
+        for i in range (1, len(train_scaled)):
+            X_train.append(train_scaled[i-1])
+            y_train.append(train_scaled[i])
 
+        X_train, y_train = np.array(X_train), np.array(y_train)
 
+        model = Sequential([
+            LSTM(50, activation='relu', input_shape=(X_train.shape[1],1)),
+            Dense(X_train.shape[1])
+        ])
+        model.compile(optimizer='adam', loss='mse')
+        model.fit(X_train, y_train, epochs=50, batch_size=16, verbose=0)
 
+        X_test = np.expand_dims(train_scaled[-1], axis=0)
+        predicted_scaled = model.predict(X_test)
+        predicted = scaler.inverse_transform(predicted_scaled)
+
+        results[crime_type] = predicted.flatten()
+
+    cursor.close()
+    db.close()
+
+    return results
+
+#MySQL에 예측값을 업데이트하는 함수
+def update_predictions_in_mysql():
+    print("예측값(시간) 업데이트 시작")
+    try:
+    #마지막 업데이트 시간을 MySQL에서 가져옴
+        db = get_db_connection()
+        cursor = db.cursor()
+        cursor.execute("SELECT COUNT(*) as count FROM time_status")
+        result = cursor.fetchone()
+        if result['count'] == 0:
+            cursor.execute("insert into time_status(id, last_update_time2) values (1, null)")
+            db.commit()
+            print("Initizlized system_status table")
+            last_update_time2 = None
+        else:
+            #마지막 업데이트 시간 확인
+            cursor.execute("select last_update_time2 from time_status where id=1")
+            last_update_time2_result = cursor.fetchoone()
+            if last_update_time2_result and last_update_time2_result['last_update_time2']:
+                last_update_time2 = datetime.strptime(str(last_update_time2_result['last_update_time2']),"%Y-%m-%d %H:%M:%S")
+            else:
+                last_update_time2 = None
+        now = datetime.now()
+
+        #마지막 업데이트 시간이 없거나 하루 이상 경과한 경우 LSTM 학습 수행
+        if last_update_time2 is None or (now - last_update_time2) > timedelta(hours=3):
+            print("새로운 LSTM 학습 시작")
+            lstm_predictions2 = train_lstm_model2()
+
+            #MySQL에 예측값 저장
+            for crime, prediction in lstm_predictions2.items():
+                cursor.execute("""
+                    insert into crime_predictions_time (crime_type2, prediction2, prediction_data2)
+                            values (%s, %s, %s)
+                            """,(crime, json.dumps(prediction.tolist()), now))
+                
+            db.commit()
+            print("예측값(시간)이 SQL에 저장되었습니다")
+
+            #마지막 업데이트 시간 갱신
+            cursor.execute("update time_status set last_update_time2 = %s where id=1", (now,))
+            db.commit()
+        else:
+            print("예측값(시간)은 최신 상태입니다. MySQL에서 값을 불러옵니다")
+    except Exception as e:
+        print(f"Error in update_predictions_in_mysql: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
+
+#스케줄러 설정: 매일 3시간마다 업데이트
+scheduler = BackgroundScheduler()
+scheduler.add_job(update_predictions_in_mysql, 'cron', hour='0,3,6,9,12,15,18,21',  minute = 0)
+scheduler.start()
 
 # 현재 시간대 TOP 3 범죄 데이터 반환
 @app.route('/current_time_top3/<int:time_range_index>', methods=['GET'])
 def current_time_top3(time_range_index):
-  
-        # 데이터 전처리
-        data['TimeRange'] = data['TimeRange'].str.extract(r'(\d+):')[0].astype(int)
-        data_pivot = data.pivot_table(index=['Year', 'CrimeType'], columns=['TimeRange'], values='Count', fill_value=0)
-        train = data_pivot[data_pivot.index.get_level_values(0) < 2020]
-        crime_types = train.index.get_level_values(1).unique()
+    try:
+        #MySQL에서 예측값 가져오기
+        db=get_db_connection()
+        cursor=db.cursor()
 
-        # 스케일링 및 LSTM 학습
-        scaler = MinMaxScaler()
-        results = {}
-        for crime_type in crime_types:
-            crime_data = train.xs(crime_type, level='CrimeType')
-            train_scaled = scaler.fit_transform(crime_data)
-            
-            # 시계열 데이터 형식 변환
-            X_train, y_train = [], []
-            for i in range(1, len(train_scaled)):
-                X_train.append(train_scaled[i-1])
-                y_train.append(train_scaled[i])
-            
-            X_train, y_train = np.array(X_train), np.array(y_train)
-            
-            # LSTM 모델 생성
-            model = Sequential([
-                LSTM(50, activation='relu', input_shape=(X_train.shape[1], 1)),
-                Dense(X_train.shape[1])
-            ])
-            model.compile(optimizer='adam', loss='mse')
-            model.fit(X_train, y_train, epochs=50, batch_size=16, verbose=0)
-            
-            # 마지막 학습 데이터를 사용해 2020년 예측
-            X_test = np.expand_dims(train_scaled[-1], axis=0)
-            predicted_scaled = model.predict(X_test)
-            predicted = scaler.inverse_transform(predicted_scaled)
-            
-            results[crime_type] = predicted.flatten()
+        cursor.execute("""
+            select last_update_time2 from time_status
+            order by last_update_time2 desc
+            limit 1
+            """)
+        last_update_time2 = cursor.fetchone()
 
-        # 현재 시간대 데이터 추출
-        predicted_current_time = {crime: float(counts[time_range_index]) for crime, counts in results.items()}
-        top_3_crimes = sorted(predicted_current_time.items(), key=lambda x: x[1], reverse=True)[:3]
+        #last_update_time이 None인 경우
+        if not last_update_time2:
+            print("No last_update_time2 found")
+            return jsonify({"labels":[], "data":[]})
+        #last_update_time이 dic인 경우 'last_update_time' 키로 값 추출
+        if isinstance(last_update_time2, dict):
+            last_update_time2 = last_update_time2['last_update_time2']
+            print(f"Fetched last_update_time2: {last_update_time2}")
+            return jsonify({"labels":[], "data":[]})
+        
+        #last_update_time이 datetime 객체인지 확인
+        if isinstance(last_update_time2, datetime):
+            print(f"Fetching predictions for date: {last_update_time2}")
+        else:
+            print(f"last_update_time2 is not a valid datetime: {last_update_time2}")
+            return jsonify({"labels": [], "data": []})
+        
+        cursor.execute("""
+                       select crime_type2, prediction2
+                       from crime_predictions_time
+                       where date(prediction_date2) = (select date(last_update_time2)
+                       from time_status
+                       order by last_update_time2 desc limit 1);
+                       """)
+        predictions2=cursor.fetchall()
+        print("found predictions2:", predictions2)
 
-        # 데이터 변환
+         # 예측값 없으면 빈 결과 반환
+        if not predictions2:
+            print("No predictions found for today")
+            return jsonify({"labels": [], "data": []})
+
+        # 예측값에서 오늘의 범죄 데이터 추출
+        current_day_index = last_update_time2.weekday()
+        predicted_current_day = {}
+        
+        for row in predictions2:
+            try:
+                prediction_data2 = json.loads(row['prediction2'])
+                predicted_current_day[row['crime_type']] = prediction_data2[current_day_index]
+            except (json.JSONDecodeError, IndexError) as e:
+                print(f"Error processing prediction2 for {row['crime_type2']}: {e}")
+                continue
+
+        top_3_crimes = sorted(predicted_current_day.items(), key=lambda x: x[1], reverse=True)[:3]
+        print("Top 3 crimes:", top_3_crimes)
+        
         labels = [crime for crime, count in top_3_crimes]
-        data = [count for crime, count in top_3_crimes]
-
-    
+        data = [float(count) for crime, count in top_3_crimes]
+        print(f"Labels: {labels}, Data: {data}")
+        return jsonify({"labels": labels, "data": data})
+       
 
     except Exception as e:
-        print(f"Error predicting crime data: {e}")
-        labels, data = [], []
+        print(f"Error in day_of_week_crime2: {e}")
+        traceback.print_exc()  # 스택 트레이스 출력
+        return jsonify({"labels": [], "data": [], "error": str(e)})
+    finally:
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
+def init_database():
+    db = get_db_connection()
+    cursor = db.cursor()
+    
+    # Create system_status table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS time_status (
+        id INT PRIMARY KEY,
+        last_update_time2 DATETIME
+    )
+    """)
+    
+    # Create crime_predictions table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS crime_predictions_time (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        crime_type2 VARCHAR(255),
+        prediction2 TEXT,
+        prediction_date2 DATETIME
+    )
+    """)
+    
+    db.commit()
+    cursor.close()
+    db.close()
+        
 
-    return jsonify({"labels": labels, "data": data})
+    
+        
 
 
 
+  
 # 요일 그래프
 # LSTM 모델 학습 및 예측 함수
 def train_lstm_model():
