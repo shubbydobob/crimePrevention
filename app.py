@@ -155,6 +155,8 @@ def train_lstm_model2():
 
         #시계열 데이터 형식 변환
         X_train, y_train = [],[]
+        
+        #됐나안됐나.,,,
 
 
 
