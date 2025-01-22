@@ -79,9 +79,15 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+function getDayofWeek(){
+  const days = ["일","월", "화","수","목","금","토"]
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  return days[dayOfWeek];
+}
+document.getElementById("currentDay").textContent = `${getDayofWeek()}요일 예상 범죄`
 
-
-//세번째 그래프
+//요일 그래프
 document.addEventListener("DOMContentLoaded", function () {
   const dayOfWeekCrimeCtx = document.getElementById("dayOfWeekCrimeChart").getContext("2d");
   let dayOfWeekCrimeChart;
