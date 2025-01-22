@@ -230,7 +230,8 @@ def update_predictions_in_mysql2():
         else:
             print("예측값(시간)은 최신 상태입니다. MySQL에서 값을 불러옵니다")
     except Exception as e:
-        print(f"Error in update_predictions_in_mysql2: {e}")
+        
+        print(f"스케줄러 실행 {datetime.now()}")
     finally:
         if cursor:
             cursor.close()
@@ -238,9 +239,11 @@ def update_predictions_in_mysql2():
             db.close()
 
 #스케줄러 설정: 매일 3시간마다 업데이트
-scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler(daemon=True, timezone = 'Asia/Seoul')
 scheduler.add_job(update_predictions_in_mysql2, 'cron', hour='0,3,6,9,12,15,18,21',  minute = 0)
 scheduler.start()
+print(f"Scheduler started successfully at {datetime.now()}")
+
 
 # 현재 시간대 TOP 3 범죄 데이터 반환
 @app.route('/current_time_top3/<int:time_range_index>', methods=['GET'])
@@ -467,7 +470,7 @@ def update_predictions_in_mysql():
     print(f"New Data loading time {execution_time:.2f} seconds")
 
 # 스케줄러 설정: 매일 자정에 예측값 업데이트
-scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler(daemon=True, timezone = 'Asia/Seoul')
 scheduler.add_job(update_predictions_in_mysql, 'cron', hour=0, minute=0)
 scheduler.start()
 

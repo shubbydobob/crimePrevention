@@ -3,6 +3,14 @@ const crimeDataByRegion = {
   // 예제 데이터 (원하는 지역별로 데이터 추가 가능)
 };
 
+function getDayofWeek(){
+  const days = ["일","월", "화","수","목","금","토"]
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  return days[dayOfWeek];
+}
+document.getElementById("currentDay").textContent = `${getDayofWeek()}요일 예상 범죄`
+
 // 현재 시간대 계산
 function getCurrentTimeRangeIndex() {
   const currentHour = new Date().getHours();
@@ -79,13 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-function getDayofWeek(){
-  const days = ["일","월", "화","수","목","금","토"]
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  return days[dayOfWeek];
-}
-document.getElementById("currentDay").textContent = `${getDayofWeek()}요일 예상 범죄`
+
 
 //요일 그래프
 document.addEventListener("DOMContentLoaded", function () {
