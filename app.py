@@ -119,6 +119,9 @@ def get_crime_data(main_region, sub_region):
     
     return jsonify(crime_data)
 
+
+
+
 #시간 그래프
 #LSTM 모델 학습 및 예측 함수
 def train_lstm_model2():
@@ -173,14 +176,17 @@ def train_lstm_model2():
         predicted = scaler.inverse_transform(predicted_scaled)
 
         results[crime_type] = predicted.flatten()
+        print("LSTM predictions (time):", results)
 
     cursor.close()
     db.close()
 
     return results
+    
+
 
 #MySQL에 예측값을 업데이트하는 함수
-def update_predictions_in_mysql():
+def update_predictions_in_mysql2():
     print("예측값(시간) 업데이트 시작")
     try:
     #마지막 업데이트 시간을 MySQL에서 가져옴
@@ -211,7 +217,7 @@ def update_predictions_in_mysql():
             #MySQL에 예측값 저장
             for crime, prediction in lstm_predictions2.items():
                 cursor.execute("""
-                    insert into crime_predictions_time (crime_type2, prediction2, prediction_data2)
+                    insert into crime_predictions_time (crime_type2, prediction2, prediction_date2)
                             values (%s, %s, %s)
                             """,(crime, json.dumps(prediction.tolist()), now))
                 
@@ -224,7 +230,7 @@ def update_predictions_in_mysql():
         else:
             print("예측값(시간)은 최신 상태입니다. MySQL에서 값을 불러옵니다")
     except Exception as e:
-        print(f"Error in update_predictions_in_mysql: {e}")
+        print(f"Error in update_predictions_in_mysql2: {e}")
     finally:
         if cursor:
             cursor.close()
@@ -233,7 +239,7 @@ def update_predictions_in_mysql():
 
 #스케줄러 설정: 매일 3시간마다 업데이트
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_predictions_in_mysql, 'cron', hour='0,3,6,9,12,15,18,21',  minute = 0)
+scheduler.add_job(update_predictions_in_mysql2, 'cron', hour='0,3,6,9,12,15,18,21',  minute = 0)
 scheduler.start()
 
 # 현재 시간대 TOP 3 범죄 데이터 반환
@@ -249,70 +255,53 @@ def current_time_top3(time_range_index):
             order by last_update_time2 desc
             limit 1
             """)
-        last_update_time2 = cursor.fetchone()
+        result = cursor.fetchone()
 
         #last_update_time이 None인 경우
-        if not last_update_time2:
+        if not result or 'last_update_time2' not in result:
             print("No last_update_time2 found")
             return jsonify({"labels":[], "data":[]})
-        #last_update_time이 dic인 경우 'last_update_time' 키로 값 추출
-        if isinstance(last_update_time2, dict):
-            last_update_time2 = last_update_time2['last_update_time2']
-            print(f"Fetched last_update_time2: {last_update_time2}")
-            return jsonify({"labels":[], "data":[]})
         
-        #last_update_time이 datetime 객체인지 확인
-        if isinstance(last_update_time2, datetime):
-            print(f"Fetching predictions for date: {last_update_time2}")
-        else:
-            print(f"last_update_time2 is not a valid datetime: {last_update_time2}")
-            return jsonify({"labels": [], "data": []})
-        
-        cursor.execute("""
-                       select crime_type2, prediction2
-                       from crime_predictions_time
-                       where date(prediction_date2) = (select date(last_update_time2)
-                       from time_status
-                       order by last_update_time2 desc limit 1);
-                       """)
-        predictions2=cursor.fetchall()
-        print("found predictions2:", predictions2)
+        last_update_time2 = result['last_update_time2']
 
-         # 예측값 없으면 빈 결과 반환
+        cursor.execute("""
+            SELECT crime_type2, prediction2
+            FROM crime_predictions_time
+            WHERE DATE(prediction_date2) = DATE(%s)
+        """, (last_update_time2,))
+
+        predictions2 = cursor.fetchall()
+
         if not predictions2:
             print("No predictions found for today")
-            return jsonify({"labels": [], "data": []})
-
-        # 예측값에서 오늘의 범죄 데이터 추출
-        current_day_index = time_range_index
-        predicted_current_day = {}
+            return jsonify({"labels":[], "data":[]})
         
+        predicted_current_day = {}
         for row in predictions2:
             try:
-                prediction_data2 = json.loads(row['prediction2'])
-                predicted_current_day[row['crime_type2']] = prediction_data2[current_day_index]
+                prediction_date2 = json.loads(row['prediction2'])
+                predicted_current_day[row['crime_type2']] = prediction_date2[time_range_index]
             except (json.JSONDecodeError, IndexError) as e:
-                print(f"Error processing prediction2 for {row['crime_type2']}: {e}")
+                print(f"Error processing prediction for {row['crime_type2']}: {e}")
                 continue
 
         top_3_crimes = sorted(predicted_current_day.items(), key=lambda x: x[1], reverse=True)[:3]
-        print("Top 3 crimes:", top_3_crimes)
-        
+
         labels = [crime for crime, count in top_3_crimes]
         data = [float(count) for crime, count in top_3_crimes]
-        print(f"Labels: {labels}, Data: {data}")
-        return jsonify({"labels": labels, "data": data})
-       
 
+        return jsonify({"labels": labels, "data": data})
+    
     except Exception as e:
-        print(f"Error in day_of_week_crime2: {e}")
-        traceback.print_exc()  # 스택 트레이스 출력
+        print(f"Error in current_time_top3: {e}")
+        traceback.print_exc()
         return jsonify({"labels": [], "data": [], "error": str(e)})
     finally:
         if cursor:
             cursor.close()
         if db:
             db.close()
+  
 def init_database():
     db = get_db_connection()
     cursor = db.cursor()
@@ -330,7 +319,7 @@ def init_database():
     CREATE TABLE IF NOT EXISTS crime_predictions_time (
         id INT AUTO_INCREMENT PRIMARY KEY,
         crime_type2 VARCHAR(255),
-        prediction2 TEXT,
+        prediction2 JSON,
         prediction_date2 DATETIME
     )
     """)
@@ -538,8 +527,8 @@ def day_of_week_crime():
         
         for row in predictions:
             try:
-                prediction_data = json.loads(row['prediction'])
-                predicted_current_day[row['crime_type']] = prediction_data[current_day_index]
+                prediction_date = json.loads(row['prediction'])
+                predicted_current_day[row['crime_type']] = prediction_date[current_day_index]
             except (json.JSONDecodeError, IndexError) as e:
                 print(f"Error processing prediction for {row['crime_type']}: {e}")
                 continue
@@ -591,4 +580,5 @@ def init_database():
 if __name__ == '__main__':
     init_database()  # Initialize database tables
     update_predictions_in_mysql()  # Initial prediction update
+    update_predictions_in_mysql2()
     app.run(debug=True)
