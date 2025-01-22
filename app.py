@@ -501,7 +501,7 @@ def day_of_week_crime():
 
         # last_update_time이 datetime 객체인지 확인
         if isinstance(last_update_time, datetime):  
-            
+
             print(f"Fetching predictions for date: {last_update_time}")
         else:
             print(f"last_update_time is not a valid datetime: {last_update_time}")
@@ -569,9 +569,13 @@ def init_database():
     CREATE TABLE IF NOT EXISTS crime_predictions (
         id INT AUTO_INCREMENT PRIMARY KEY,
         crime_type VARCHAR(255),
-        prediction TEXT,
-        prediction_date DATETIME
-    )
+        prediction json,
+        prediction_date datetime,
+        system_status_id int,
+        foreign key (system_status_id) references system_status(id)
+        on delete cascade
+        on update cascade
+        )
     """)
     
     db.commit()
