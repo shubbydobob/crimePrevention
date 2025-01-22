@@ -500,7 +500,8 @@ def day_of_week_crime():
             return jsonify({"labels": [], "data": []})
 
         # last_update_time이 datetime 객체인지 확인
-        if isinstance(last_update_time, datetime):
+        if isinstance(last_update_time, datetime):  
+            
             print(f"Fetching predictions for date: {last_update_time}")
         else:
             print(f"last_update_time is not a valid datetime: {last_update_time}")
