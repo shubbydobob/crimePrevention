@@ -43,35 +43,6 @@ def execute_query(query, params=None, fetch=True):
     finally:
         db.close()
 
-
-# LSTM 학습 및 예측 함수
-def train_and_predict_lstm(data, steps, predict_steps):
-
-    # 시계열 데이터 형식 변환
-    X, y = [], []
-    for i in range(len(data)-steps):
-        X.append(data[i:i + steps])
-        y.append(data[i + steps])
-
-    X, y = np.array(X), np.array(y)
-    X = X.reshape((X.shape[0], X.shape[1], 1))
-
-    model = Sequential()
-    model.add(LSTM(50, activation='relu', input_shape = (steps, 1)))
-    model.add(Dense(1))
-    model.compile(optimizer = 'adam', loss='mse')
-    model.fit(X, y, epochs=200, verbose=0)
-
-    predictions = []
-    current_input = data[-steps:]
-    for _ in range(predict_steps):
-        current_input = np.array(current_input).reshape((1, steps, 1))
-        pred = model.predict(current_input, verbose=0)[0,0]
-        predictions.append(pred)
-        current_input = np.append(current_input[0,1:],pred)
-    
-    return predictions
-
 # 메인 페이지: 메인 지역 리스트 로드
 @app.route('/')
 def index():
@@ -102,7 +73,6 @@ def get_crime_data(main_region, sub_region):
         ORDER BY total_occurences DESC
         LIMIT 5
         """
-    
     crime_data = execute_query(query, (main_region, sub_region))
     labels = [entry['crime_name'] for entry in crime_data]
     data = [entry['total_occurences'] for entry in crime_data]
@@ -290,42 +260,7 @@ def current_time_top3(time_range_index):
             cursor.close()
         if db:
             db.close()
-  
-def init_database():
-    db = get_db_connection()
-    cursor = db.cursor()
-    
-    # Create system_status table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS time_status (
-        id INT PRIMARY KEY,
-        last_update_time2 DATETIME
-    )
-    """)
-    
-    # Create crime_predictions table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS crime_predictions_time (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        crime_type2 VARCHAR(255),
-        prediction2 JSON,
-        prediction_date2 DATETIME
-    )
-    """)
-
-    
-    
-    db.commit()
-    cursor.close()
-    db.close()
         
-
-    
-        
-
-
-
-  
 # 요일 그래프
 # LSTM 모델 학습 및 예측 함수
 def train_lstm_model():
@@ -541,6 +476,7 @@ def day_of_week_crime():
             cursor.close()
         if db:
             db.close()
+
 def init_database():
     db = get_db_connection()
     cursor = db.cursor()
@@ -555,7 +491,7 @@ def init_database():
     
     # Create crime_predictions table
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS crime_predictions (
+    CREATE TABLE IF NOT EXISTS crime_predictions_days (
         id INT AUTO_INCREMENT PRIMARY KEY,
         crime_type VARCHAR(255),
         prediction json,
@@ -564,7 +500,22 @@ def init_database():
         foreign key (system_status_id) references system_status(id)
         on delete cascade
         on update cascade
-        )
+    )
+    """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS time_status (
+        id INT PRIMARY KEY,
+        last_update_time2 DATETIME
+    )
+    """)
+    
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS crime_predictions_time (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        crime_type2 VARCHAR(255),
+        prediction2 JSON,
+        prediction_date2 DATETIME
+    )
     """)
     
     db.commit()
