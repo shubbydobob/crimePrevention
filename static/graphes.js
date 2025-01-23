@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(data => {
         // 세부 지역 리스트 초기화
         subRegionSelect.innerHTML = `<option value="">세부 지역을 선택하세요</option>`;
-        data.subregions.forEach(subregion => {
+        data.forEach(subregion => {
           const option = document.createElement("option");
           option.value = subregion;
           option.textContent = subregion;

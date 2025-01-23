@@ -30,62 +30,69 @@ def get_db_connection():
         print(f"Database connection failed: {e}")
         raise
 
+# 공통: 데이터베이스 쿼리 실행 함수
+def execute_query(query, params=None, fetch=True):
+    db = get_db_connection()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(query, params or ())
+            if fetch: # select와 같은 조회 쿼리 (True일 경우)
+                return cursor.fetchall()
+            db.commit() # 데이터베이스에서 변경 작업 (insert, update, delete) 확정, 데이터베이스에 영구적으로 반영.
+                        # 트랜잭션 시작 -> sql 실행 (i, u, d) -> 확정 
+    finally:
+        db.close()
+
+
+# LSTM 학습 및 예측 함수
+def train_and_predict_lstm(data, steps, predict_steps):
+
+    # 시계열 데이터 형식 변환
+    X, y = [], []
+    for i in range(len(data)-steps):
+        X.append(data[i:i + steps])
+        y.append(data[i + steps])
+
+    X, y = np.array(X), np.array(y)
+    X = X.reshape((X.shape[0], X.shape[1], 1))
+
+    model = Sequential()
+    model.add(LSTM(50, activation='relu', input_shape = (steps, 1)))
+    model.add(Dense(1))
+    model.compile(optimizer = 'adam', loss='mse')
+    model.fit(X, y, epochs=200, verbose=0)
+
+    predictions = []
+    current_input = data[-steps:]
+    for _ in range(predict_steps):
+        current_input = np.array(current_input).reshape((1, steps, 1))
+        pred = model.predict(current_input, verbose=0)[0,0]
+        predictions.append(pred)
+        current_input = np.append(current_input[0,1:],pred)
+    
+    return predictions
+
 # 메인 페이지: 메인 지역 리스트 로드
 @app.route('/')
 def index():
-    cursor = None
-    db = None
-    try:
-        db = get_db_connection()
-        cursor = db.cursor()
-        cursor.execute("SELECT DISTINCT main_region FROM regions")
-        regions = [row['main_region'] for row in cursor.fetchall()]
-        print("Loaded Main Regions:", regions)  # 디버깅용 출력
-    except Exception as e:
-        print(f"Error loading main regions: {e}")
-        regions = []  # 오류 발생 시 빈 리스트 반환
-    finally:
-        if cursor:
-            cursor.close()
-        if db:  # db가 정의된 경우에만 close() 호출
-            db.close()
-        
-    
-    return render_template('graphes.html', regions=regions)
-
+    query = "SELECT DISTINCT main_region FROM regions"
+    regions = execute_query(query)
+    return render_template('graphes.html', regions=[region['main_region'] for region in regions]) # region은 파이썬 내장 문법
+   
 # 특정 메인 지역의 세부 지역 리스트 반환
 @app.route('/subregions/<main_region>')
 def get_subregions(main_region):
-    cursor = None
-    db = None
-    try:
-        db = get_db_connection()
-        cursor = db.cursor()
-        query = """
-        SELECT sub_region FROM regions
+    query = """
+        SELECT distinct sub_region FROM regions
         WHERE main_region = %s
         """
-        cursor.execute(query, (main_region,))
-        subregions = [row['sub_region'] for row in cursor.fetchall()]
-        print(f"Loaded Subregions for {main_region}: {subregions}")  # 디버깅용 출력
-    except Exception as e:
-        print(f"Error loading subregions: {e}")
-        subregions = []  # 오류 발생 시 빈 리스트 반환
-    finally:
-        if cursor:
-            cursor.close()
-        if db:
-            db.close()
+    subregions = execute_query(query, (main_region,))
+    return jsonify([sub['sub_region'] for sub in subregions]) 
     
-    return jsonify({"subregions": subregions})
-
 # 특정 세부 지역의 상위 5개 범죄 데이터를 반환
 @app.route('/plot/<main_region>/<sub_region>')
 def get_crime_data(main_region, sub_region):
-    try:
-        db = get_db_connection()
-        cursor = db.cursor()
-        query = """
+    query = """
         SELECT c.crime_name, SUM(co.occurences) AS total_occurences
         FROM crime_occurences co
         JOIN regions r ON co.region_id = r.id
@@ -95,32 +102,11 @@ def get_crime_data(main_region, sub_region):
         ORDER BY total_occurences DESC
         LIMIT 5
         """
-        cursor.execute(query, (main_region, sub_region))
-        data = cursor.fetchall()
-        
-        # 데이터 확인
-        print(f"Crime data for {main_region}, {sub_region}: {data}")
-        
-        # 결과가 없으면 빈 JSON 반환
-        if not data:
-            return jsonify({"labels": [], "data": []})
-        
-        # 데이터 변환
-        crime_data = {
-            "labels": [row['crime_name'] for row in data],
-            "data": [row['total_occurences'] for row in data]
-        }
-    except Exception as e:
-        print(f"Error fetching crime data: {e}")
-        crime_data = {"labels": [], "data": []}  # 오류 발생 시 빈 데이터 반환
-    finally:
-        cursor.close()
-        db.close()
     
-    return jsonify(crime_data)
-
-
-
+    crime_data = execute_query(query, (main_region, sub_region))
+    labels = [entry['crime_name'] for entry in crime_data]
+    data = [entry['total_occurences'] for entry in crime_data]
+    return jsonify({"labels": labels, "data": data})
 
 #시간 그래프
 #LSTM 모델 학습 및 예측 함수
