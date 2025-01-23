@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>조건별 범죄 예측 모니터링</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -39,20 +40,29 @@
     .charts-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr); /* 3개의 열로 설정 */
+      grid-template-rows: auto auto;
       gap: 5x;
       justify-items: center;
       width: 100%;
       
     }
 
+    .news-section {
+      grid-column: 1 / span 2;
+      grid-row: 2;
+      
+      width: 930px;
+    }
+
     .chart-box {
       flex: 1;
-      min-width: 420px;
-      max-width: 400px;
+      min-width: 430px;
+      padding: 10px;
       text-align: center;
       background-color: white;
       border-radius: 30px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 각 그래프 박스에 그림자 */
+      margin-bottom: 30px;
 
     }
 
@@ -60,8 +70,6 @@
       width: 100%;
       height: auto;
     }
-
-  
 
     #crime-graph{
       width: 100%;
@@ -71,10 +79,18 @@
     border-radius: 5px;
     height: 24px;
   }
+
+  .table-container {
+    margin-left: 159px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+ 
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
+
 <body>
   <header>
     <h1>조건별 범죄 예측 모니터링</h1>
@@ -82,8 +98,7 @@
 
   <div class="content">
     
-
-    <div class="charts-container">
+      <div class="charts-container">
     
 
       <!-- 2. 시간대별 범죄 발생률 -->
@@ -114,23 +129,25 @@
               <option value="">세부 지역을 선택하세요</option>
             </select>
           </label>
-          
-        
-      
-          
-        
           <div id="graph-container">
             <canvas id="crimeChart" width="400" height="400"></canvas>
           </div>
         </div>
 
-    <script src="../static/graphes.js"></script>
+         <script src="../static/graphes.js"></script>
         
+      </div>
+      
+      <div class = "chart-box news-section">
+        <h3>범죄 보도 뉴스</h3>
+        <div class = 'table-container'>
+          {{html_table | safe}}
+        </div>
       </div>
 
 
 
-
+ 
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

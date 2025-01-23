@@ -47,8 +47,19 @@ def execute_query(query, params=None, fetch=True):
 def index():
     query = "SELECT DISTINCT main_region FROM regions"
     regions = execute_query(query)
-    return render_template('graphes.html', regions=[region['main_region'] for region in regions]) # region은 파이썬 내장 문법
    
+    file_name = 'C:/Users/GR/범죄 보도 뉴스 (2023).xlsx'
+    df = pd.read_excel(file_name)
+    df["일자"] = pd.to_datetime(df["일자"])
+    sorted_data = df.sort_values(by="일자", ascending=False)
+    
+    selected_columns = ['제목', '일자', '언론사']
+    selected_data = sorted_data[selected_columns]
+    top_5_data = selected_data.head(5)
+    
+    html_table = top_5_data.to_html(classes='table table-bordered table-striped', index=False)
+    
+    return render_template('graphes.html',regions=[region['main_region'] for region in regions],  html_table=html_table)
 # 특정 메인 지역의 세부 지역 리스트 반환
 @app.route('/subregions/<main_region>')
 def get_subregions(main_region):
@@ -515,6 +526,8 @@ def init_database():
     db.commit()
     cursor.close()
     db.close()
+
+
     
 if __name__ == '__main__':
     init_database()  # Initialize database tables
