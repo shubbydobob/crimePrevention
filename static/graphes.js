@@ -201,10 +201,11 @@ document.addEventListener("DOMContentLoaded", function () {
       pieChart.destroy(); // 기존 차트 삭제
     }
     pieChart = new Chart(pieCtx, {
-      type: 'pie',
+      type: 'bar',
       data: {
         labels: labels,
         datasets: [{
+          label: '범죄 발생 건수',
           data: data,
           backgroundColor: ['#ff5733', '#33c1ff', '#28a745', '#ffcc00', '#ff6699'],
           borderWidth: 1
@@ -212,9 +213,14 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       options: {
         responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true // y축이 0부터 시작하도록 설정
+          }
+        },
         plugins: {
           legend: {
-            position: 'top'
+            display: false,
           }
         }
       }

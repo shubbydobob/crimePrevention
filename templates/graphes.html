@@ -37,18 +37,22 @@
     }
 
     .charts-container {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 20px;
-      justify-content: space-around;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3개의 열로 설정 */
+      gap: 5x;
+      justify-items: center;
       width: 100%;
+      
     }
 
     .chart-box {
       flex: 1;
-      min-width: 300px;
+      min-width: 420px;
       max-width: 400px;
       text-align: center;
+      background-color: white;
+      border-radius: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 각 그래프 박스에 그림자 */
 
     }
 
@@ -84,7 +88,7 @@
 
       <!-- 2. 시간대별 범죄 발생률 -->
       <div class="chart-box">
-        <h3>현재 시간대 예상 범죄 TOP 3</h3>
+        <h3>현재 시간대 예상 범죄</h3>
         <canvas id="crimePieChart"></canvas>
       </div>
 
