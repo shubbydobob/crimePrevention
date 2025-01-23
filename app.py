@@ -12,8 +12,7 @@ from datetime import datetime,timedelta
 import json
 from apscheduler.schedulers.background import BackgroundScheduler
 import traceback
-import time
-
+from pytz import timezone
 app = Flask(__name__)
 
 # Database 연결 함수
@@ -328,9 +327,9 @@ def train_lstm_model():
 
 # MySQL에 예측값을 업데이트하는 함수
 def update_predictions_in_mysql():
-    start_time = time.time()  # 실행 시간 측정 시작
 
-    print("예측값 업데이트 시작")
+    print(f"예측값 업데이트 시작: {datetime.now()}")
+
     try: 
     # 마지막 업데이트 시간을 MySQL에서 가져옴
         db = get_db_connection()
@@ -351,7 +350,7 @@ def update_predictions_in_mysql():
             else:
                 last_update_time = None
 
-        now = datetime.now()
+        now = datetime.now(timezone('Asia/Seoul'))
        
         
     # 마지막 업데이트 시간이 없거나 하루 이상 경과한 경우 LSTM 학습 수행
@@ -362,7 +361,7 @@ def update_predictions_in_mysql():
             # MySQL에 예측값 저장
             for crime, prediction in lstm_predictions.items():
                 cursor.execute(""" 
-                    INSERT INTO crime_predictions (crime_type, prediction, prediction_date) 
+                    INSERT INTO crime_predictions_days (crime_type, prediction, prediction_date) 
                     VALUES (%s, %s, %s)
                 """, (crime, json.dumps(prediction.tolist()), now))  # prediction을 list로 변환
 
@@ -384,11 +383,6 @@ def update_predictions_in_mysql():
             cursor.close()
         if db:
             db.close()
-
-    end_time = time.time()  # 실행 시간 측정 종료
-    execution_time = end_time - start_time  # 실행 시간 계산
-    
-    print(f"New Data loading time {execution_time:.2f} seconds")
 
 # 스케줄러 설정: 매일 자정에 예측값 업데이트
 scheduler = BackgroundScheduler(daemon=True, timezone = 'Asia/Seoul')
@@ -433,7 +427,7 @@ def day_of_week_crime():
 
         cursor.execute("""
             SELECT crime_type, prediction 
-            FROM crime_predictions
+            FROM crime_predictions_days
             WHERE DATE(prediction_date) = (SELECT DATE(last_update_time) 
                                             FROM system_status 
                                             ORDER BY last_update_time DESC LIMIT 1);
