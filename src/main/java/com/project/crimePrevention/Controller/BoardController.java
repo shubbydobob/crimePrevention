@@ -8,6 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +44,7 @@ public class BoardController {
     private AdminService adminService;
 
     @GetMapping("/Board")
-    public String getBoardPage(@RequestParam(defaultValue = "1") int page,
-                               @RequestParam(defaultValue = "10") int pageSize,
-                               @RequestParam(required = false) Boolean all, // 전체 조회 여부
+    public String getBoardPage(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) Boolean all, // 전체 조회 여부
                                HttpSession session, Model model) {
         logger.info("[INFO] 신고 접수 페이지 요청 - 페이지 번호: {}, 전체 조회 여부: {}", page, all);
 
@@ -142,6 +145,31 @@ public class BoardController {
 
         logger.info("신고 접수 처리 완료"); // 신고 접수 완료 로깅
         return "redirect:/Board"; // 신고 처리 후 목록 페이지로 리다이렉트
+    }
+
+    // 파일 다운로드 API 추가
+    @GetMapping("/Board/download/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
+        try {
+            if (fileName == null || fileName.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+
+            Path filePath = Paths.get(uploadDir).resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists() || !resource.isReadable()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
+
+            return ResponseEntity.ok().headers(headers).body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // 열람 비밀번호 검증 및 관리자 로그인 후 비밀번호 입력 없이 조회

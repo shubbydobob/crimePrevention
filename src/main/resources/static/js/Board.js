@@ -235,9 +235,16 @@ function openDetailModal(data) {
     // 파일 링크를 설정
     if (data.filePath) {
         let fileUrl = data.filePath.startsWith("/uploads/") ? data.filePath : `/uploads/${data.filePath}`;
+        let fileName = data.filePath.split('/').pop(); // 파일명만 추출
+            if (!fileName || fileName === "NaN") {
+                console.error("파일명이 올바르지 않습니다:", data.filePath);
+                return;
+            }
+        let downloadUrl = `/Board/download/${fileName}`;
 
         fileLink.textContent = '파일 보기'; // 파일 링크 텍스트
-        fileLink.href = fileUrl; // 파일 경로 설정
+        fileLink.href = downloadUrl; // 파일 경로 설정
+        fileLink.setAttribute("download", fileName); // 다운로드 속성 추가
         fileThumbnail.style.display = 'block'; // 이미지 파일일 경우 썸네일 표시
 
         // 파일이 이미지일 경우 썸네일을 미리 보여주기
