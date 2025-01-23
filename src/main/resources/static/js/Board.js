@@ -234,16 +234,19 @@ function openDetailModal(data) {
 
     // 파일 링크를 설정
     if (data.filePath) {
+        let fileUrl = data.filePath.startsWith("/uploads/") ? data.filePath : `/uploads/${data.filePath}`;
+
         fileLink.textContent = '파일 보기'; // 파일 링크 텍스트
-        fileLink.href = `src/main/resources/static/uploads/${data.filePath}`; // 파일 경로 설정
+        fileLink.href = fileUrl; // 파일 경로 설정
         fileThumbnail.style.display = 'block'; // 이미지 파일일 경우 썸네일 표시
 
         // 파일이 이미지일 경우 썸네일을 미리 보여주기
         const fileExtension = data.filePath.split('.').pop().toLowerCase();
+
         if (["jpg", "jpeg", "png", "gif", "bmp"].includes(fileExtension)) {
-            fileThumbnail.src = `src/main/resources/static/uploads/${data.filePath}`; // 썸네일 이미지 경로
+            fileThumbnail.src = fileUrl; // 썸네일 이미지 경로
             fileThumbnail.onclick = function() {
-                window.open(fileLink.href, '_blank'); // 썸네일 클릭 시 파일 보기
+                window.open(fileUrl, '_blank'); // 썸네일 클릭 시 파일 보기
             };
         } else {
             fileThumbnail.style.display = 'none'; // 이미지가 아닐 경우 썸네일 숨기기

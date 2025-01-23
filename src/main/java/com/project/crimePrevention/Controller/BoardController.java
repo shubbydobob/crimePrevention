@@ -107,14 +107,15 @@ public class BoardController {
                 }
 
                 // 파일 경로 및 이름 생성
-                String originalName = file.getOriginalFilename(); // 원본 파일명
-                String fileName = UUID.randomUUID().toString() + "_" + originalName; // 고유한 파일명 생성
-                String filePath = uploadDir + fileName; // 저장할 파일 경로 설정
+
+                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                String savePath = uploadDir + fileName; // 실제 저장 경로
+                String filePath = "uploads/" + fileName; // 웹 접근 가능 경로
 
                 logger.info("업로드 디렉토리: {}", uploadDir);
 
                 // 서버 디렉토리에 파일 저장
-                file.transferTo(new File(filePath));
+                file.transferTo(new File(savePath));
                 logger.info("파일 저장 성공 - 경로: {}", filePath); // 파일 저장 완료 로깅
 
                 // 파일 경로를 Board 객체에 저장

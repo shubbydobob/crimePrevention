@@ -44,8 +44,10 @@
 <!-- 페이징 UI -->
 <div id="pagination">
     <button class="pagination-button" th:attr="data-page=${currentPage - 1}" th:if="${currentPage > 1}">이전</button>
-    <span>페이지 <span id="currentPageText" th:text="${currentPage}"></span> / <span id="totalPagesText" th:text="${totalPages}"></span></span>
-    <button class="pagination-button" th:attr="data-page=${currentPage + 1}" th:if="${currentPage < totalPages}">다음</button>
+    <span>페이지 <span id="currentPageText" th:text="${currentPage}"></span> / <span id="totalPagesText"
+                                                                                  th:text="${totalPages}"></span></span>
+    <button class="pagination-button" th:attr="data-page=${currentPage + 1}" th:if="${currentPage < totalPages}">다음
+    </button>
 </div>
 <!-- 비밀번호 입력 모달 -->
 <div class="modal" id="password-modal" style="display: none;">
@@ -74,8 +76,14 @@
         <p><strong>범죄 발생 시간:</strong> <span id="modal-time"></span></p>
         <p><strong>이미지/동영상 파일:</strong>
         <div id="modal-file-container">
+            <!-- 이미지 썸네일 -->
             <img id="modal-thumbnail" src="" alt="썸네일"
                  style="display: none; width: 100px; height: auto; cursor: pointer;">
+
+            <!-- 동영상 미리보기 -->
+            <video id="modal-video" width="200" controls style="display: none;">
+                <source id="modal-video-source" src="" type="video/mp4">
+            </video>
             <a id="modal-file" href="#" target="_blank">보기</a>
         </div>
         </p>
