@@ -42,24 +42,43 @@ def execute_query(query, params=None, fetch=True):
     finally:
         db.close()
 
+file_name = 'C:/Users/GR/범죄 보도 뉴스 (2023).xlsx'
+df = pd.read_excel(file_name)
+df["일자"] = pd.to_datetime(df["일자"])
+df = df.sort_values(by="일자", ascending=False)
+
 # 메인 페이지: 메인 지역 리스트 로드
 @app.route('/')
 def index():
     query = "SELECT DISTINCT main_region FROM regions"
     regions = execute_query(query)
-   
-    file_name = 'C:/Users/GR/범죄 보도 뉴스 (2023).xlsx'
-    df = pd.read_excel(file_name)
-    df["일자"] = pd.to_datetime(df["일자"])
-    sorted_data = df.sort_values(by="일자", ascending=False)
-    
-    selected_columns = ['제목', '일자', '언론사']
-    selected_data = sorted_data[selected_columns]
-    top_5_data = selected_data.head(5)
-    
+    top_5_data = df[['제목', '일자', '언론사']].head(5)
     html_table = top_5_data.to_html(classes='table table-bordered table-striped', index=False)
     
-    return render_template('graphes.html',regions=[region['main_region'] for region in regions],  html_table=html_table)
+    # Pass initial articles as a context variable
+    initial_articles = top_5_data.to_dict(orient='records')
+    return render_template('graphes.html', 
+        regions=[region['main_region'] for region in regions],  
+        html_table=html_table,
+        initial_articles=initial_articles
+    )
+    
+@app.route('/articles/<date>', methods=['GET'])
+def get_articles(date):
+    try: 
+        selected_date = pd.to_datetime(date)
+        filtered_data = df[df["일자"].dt.strftime('%Y-%m-%d') == date]
+
+        if filtered_data.empty:
+            return jsonify([])
+        
+        result = filtered_data[['제목', '일자', '언론사','본문']].head(5).to_dict(orient='records')
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+  
+    
+   
 # 특정 메인 지역의 세부 지역 리스트 반환
 @app.route('/subregions/<main_region>')
 def get_subregions(main_region):

@@ -41,7 +41,6 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr); /* 3개의 열로 설정 */
       grid-template-rows: auto auto;
-      gap: 5x;
       justify-items: center;
       width: 100%;
       
@@ -50,9 +49,20 @@
     .news-section {
       grid-column: 1 / span 2;
       grid-row: 2;
-      
       width: 930px;
     }
+
+    .new-grid-box {
+    grid-column: 3; /* 세 번째 열에 배치 */
+    grid-row: 2; /* 두 번째 행에 배치 */
+    background-color: #fff;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    width: 460px;
+    height: 288px;
+    padding: 10px;
+  }
 
     .chart-box {
       flex: 1;
@@ -146,18 +156,30 @@
       </div>
       
       <div class = "chart-box news-section">
-        <h3>범죄 보도 뉴스</h3>
-        <div class = 'table-container'>
-          {{html_table | safe}}
+          <h3>범죄 보도 뉴스</h3>
+          <input type="date" id="datePicker" class="form-control w-25 mb-3">
+          <div class = "news-section">
+          <div id = "table-container" class="table-container">
+            {{html_table | safe}}
+          </div>
         </div>
       </div>
 
-
+      <div class="new-grid-box">
+        <h3>새로운 항목</h3>
+        <p>여기서 새로운 내용을 추가하세요.</p>
+      </div>
+    </div>
+    <script>
+      var initialArticles = {{initial_articles|tojson | safe }}; 
+    </script>
 
  
     </div>
   </div>
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+ 
 </body>
 </html>

@@ -145,15 +145,13 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-
-// ---------------------------------------------------
-// 새로운 원 그래프 데이터 처리 및 로징 추가
-// ---------------------------------------------------
+//------------------------------------------------
+// 조회 막대 그래프
 document.addEventListener("DOMContentLoaded", function () {
   const mainRegionSelect = document.getElementById("mainRegionSelect");
   const subRegionSelect = document.getElementById("subRegionSelect");
   const pieCtx = document.getElementById("crimeChart").getContext("2d");
-  let pieChart;
+  let pieChart; //변수 선언, 원 그래프 객체 저장 준비 (전역적 선언, 그래프 업데이트/삭제 가능)
 
   // 메인 지역 선택 시 세부 지역 데이터 로드
   mainRegionSelect.addEventListener("change", function () {
@@ -161,8 +159,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 세부 지역 로드
     fetch(`/subregions/${selectedMainRegion}`)
-      .then(response => response.json())
-      .then(data => {
+      .then(response => response.json())//응답 데이터를 javaScript에서 사용 가능한 객체로 파싱
+      .then(data => { //data 변수로 넘김, 세부 지역 데이터를 사용해 드롭다운 업데이트
         // 세부 지역 리스트 초기화
         subRegionSelect.innerHTML = `<option value="">세부 지역을 선택하세요</option>`;
         data.forEach(subregion => {
@@ -179,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
   subRegionSelect.addEventListener("change", function () {
     const selectedMainRegion = mainRegionSelect.value;
     const selectedSubRegion = subRegionSelect.value;
-    if (!selectedSubRegion) return;
+    if (!selectedSubRegion) return; // 세부 지역 선택되지 않았다면 함수 실행 중단
   
     // 올바른 URL 형식으로 요청
     fetch(`/plot/${selectedMainRegion}/${selectedSubRegion}`)
@@ -190,13 +188,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.json();
       })
       .then(data => {
-        drawPieChart(data.labels, data.data); // 원 그래프 업데이트
+        drawBarChart(data.labels, data.data); // 원 그래프 업데이트
       })
       .catch(error => console.error("Error fetching crime data:", error));
   });
   
-  // 차트를 그리는 함수 (원 그래프)
-  function drawPieChart(labels, data) {
+  // 차트를 그리는 함수 (막대 그래프)
+  function drawBarChart(labels, data) {
     if (pieChart) {
       pieChart.destroy(); // 기존 차트 삭제
     }
@@ -226,4 +224,101 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+}
+);
+document.addEventListener("DOMContentLoaded", function() {
+  const datePicker = document.getElementById("datePicker");
+  const tableContainer = document.getElementById("table-container");
+  const articleContentContainer = document.querySelector(".new-grid-box");
+
+  if (!tableContainer) {
+      console.error("Table container not found!");
+      return;
+  }
+
+  datePicker.addEventListener("change", function(){
+    const selectedDate = datePicker.value;
+
+    if (!selectedDate) return;
+
+    fetch(`/articles/${selectedDate}`)
+      .then(response => {
+        if(!response.ok){
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        updateNewsTable(data, tableContainer, articleContentContainer);
+      })
+      .catch(error => {
+        console.error("Error fetching articles:", error);
+        tableContainer.innerHTML = "<p>데이터를 불러오는 중 문제가 발생했습니다.</p>";
+      });
+  });
+
+  // Add click event to existing table rows
+  const existingRows = tableContainer.querySelectorAll('tbody tr');
+  existingRows.forEach((row, index) => {
+      row.addEventListener('click', function() {
+          // Assuming the first 5 rows are from the initial table
+          displayArticleContent(initialArticles[index], articleContentContainer);
+      });
+  });
 });
+
+function updateNewsTable(articles, tableContainer, articleContentContainer) {
+  if (!tableContainer) return;
+
+  if (articles.length === 0) {
+      tableContainer.innerHTML = "<p>해당 날짜에 뉴스가 없습니다.</p>";
+      return;
+  }
+
+  let tableHTML = "<table class='table table-bordered table-striped'>";
+  tableHTML += `
+      <thead>
+          <tr>
+              <th>제목</th>
+              <th>일자</th>
+              <th>언론사</th>
+          </tr>
+      </thead>
+      <tbody>
+  `;
+
+  articles.forEach((article, index) => {
+      tableHTML += `
+          <tr data-index="${index}">
+              <td>${article["제목"]}</td>
+              <td>${new Date(article["일자"]).toLocaleDateString()}</td>
+              <td>${article["언론사"]}</td>
+          </tr>
+      `;
+  });
+
+  tableHTML += "</tbody></table>";
+  tableContainer.innerHTML = tableHTML;
+
+  // Add click event to new table rows
+  const newRows = tableContainer.querySelectorAll('tbody tr');
+  newRows.forEach(row => {
+      row.addEventListener('click', function() {
+          const index = this.getAttribute('data-index');
+          displayArticleContent(articles[index], articleContentContainer);
+      });
+  });
+}
+
+function displayArticleContent(article, articleContentContainer) {
+  if (!articleContentContainer) return;
+
+  articleContentContainer.innerHTML = `
+      <h4>${article["제목"]}</h4>
+      
+      <div class="article-body">${article["본문"]}</div>
+  `;
+}
+
+//<p><strong>언론사:</strong> ${article["언론사"]}</p>
+//<p><strong>일자:</strong> ${new Date(article["일자"]).toLocaleDateString()}</p>
