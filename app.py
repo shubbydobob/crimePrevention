@@ -53,14 +53,17 @@ def index():
     query = "SELECT DISTINCT main_region FROM regions"
     regions = execute_query(query)
     top_5_data = df[['제목', '일자', '언론사']].head(5)
-    html_table = top_5_data.to_html(classes='table table-bordered table-striped', index=False)
+    html_table = top_5_data.to_html(classes='table table-striped', index=False, border=0)
     
     # Pass initial articles as a context variable
     initial_articles = top_5_data.to_dict(orient='records')
+    default_date = '2023-10-14'
+
     return render_template('graphes.html', 
         regions=[region['main_region'] for region in regions],  
         html_table=html_table,
-        initial_articles=initial_articles
+        initial_articles=initial_articles,
+        default_date = default_date
     )
     
 @app.route('/articles/<date>', methods=['GET'])

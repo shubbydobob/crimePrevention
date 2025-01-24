@@ -59,9 +59,9 @@
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    width: 460px;
-    height: 288px;
-    padding: 10px;
+    width: 417px;
+    height: 284px;
+    padding: 23px;
   }
 
     .chart-box {
@@ -93,7 +93,6 @@
   .table-container {
     margin-left: 159px;
     margin-bottom: 20px;
-    text-align: center;
 }
 .news-section table {
     text-align: center;
@@ -102,7 +101,11 @@
 .news-section th, .news-section td {
     text-align: center !important;
 }
- 
+table td, table th {
+    padding-left: 15px; /* 왼쪽 여백 */
+    padding-right: 15px; /* 오른쪽 여백 */
+    padding-top: 5px;
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -156,8 +159,9 @@
       </div>
       
       <div class = "chart-box news-section">
-          <h3>범죄 보도 뉴스</h3>
-          <input type="date" id="datePicker" class="form-control w-25 mb-3">
+          <h3>📢 범죄 보도 뉴스 📢</h3>
+          <input type="date" id="datePicker" class="form-control w-25 mb-3" style="border-radius: 5px; height: 24px;" value="{{ default_date }}">
+          <br><br>
           <div class = "news-section">
           <div id = "table-container" class="table-container">
             {{html_table | safe}}
@@ -180,6 +184,6 @@
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
- 
+  <!--git config --global core.autocrlf true-->
 </body>
 </html>

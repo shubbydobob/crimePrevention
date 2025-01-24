@@ -275,7 +275,7 @@ function updateNewsTable(articles, tableContainer, articleContentContainer) {
       return;
   }
 
-  let tableHTML = "<table class='table table-bordered table-striped'>";
+  let tableHTML = "<table class='table table-striped'>";
   tableHTML += `
       <thead>
           <tr>
