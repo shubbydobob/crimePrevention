@@ -30,11 +30,11 @@ public class MainPageController {
         return "/MainPage";
     }
 
-    @GetMapping("/graphes")
-    public String AdminPage() {
-        logger.info("모니터링 대시보드로 이동");
-        return "/graphes";
-    }
+//    @GetMapping("/graphes")
+//    public String AdminPage() {
+//        logger.info("모니터링 대시보드로 이동");
+//        return "/graphes";
+//    }
 
     @GetMapping("/Admin")
     public String AdminLoginPage() {

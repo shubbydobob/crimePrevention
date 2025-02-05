@@ -1,60 +1,100 @@
-   body {
-       font-family: Arial, sans-serif;
-       background-color: #f4f4f4;
-       margin: 0;
-       padding: 0;
-       width: 1800px;
-       margin: auto;
-   }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  width: 1800px;
+  margin: auto;
+}
 
-   header {
-       background-color: #26969c;
-       color: white;
-       text-align: center;
-       width: 100%;
-       /* 전체 화면 너비로 설정 */
+header {
+  background-color: #26969c;
+  color: white;
+  text-align: center;
+  width: 100%; /* 전체 화면 너비로 설정 */
 
-   }
+}
 
-   .content {
-       padding: 20px;
-       max-width: 1500px;
-       margin: 0 auto;
-       display: flex;
-       flex-direction: column;
-       /* 수직 방향 */
-       align-items: center;
-       /* 수평 중앙 정렬 */
-       gap: 20px;
-   }
+.content {
+  padding: 20px;
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column; /* 수직 방향 */
+  align-items: center; /* 수평 중앙 정렬 */
+  gap: 5px;
+}
 
-   h2 {
-       text-align: center;
-   }
+h2 {
+  text-align: center;
+}
 
-   .charts-container {
-       display: flex;
-       flex-wrap: nowrap;
-       gap: 20px;
-       justify-content: space-around;
-       width: 100%;
-   }
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3개의 열로 설정 */
+  grid-template-rows: auto auto;
+  justify-items: center;
+  width: 100%;
+  
+}
 
-   .chart-box {
-       flex: 1;
-       min-width: 300px;
-       max-width: 400px;
-       text-align: center;
+.news-section {
+  grid-column: 1 / span 3;
+  grid-row: 2;
+  width: 1440px;
+}
 
-   }
+.new-grid-box {
+grid-column: 3; /* 세 번째 열에 배치 */
+grid-row: 2; /* 두 번째 행에 배치 */
+background-color: #fff;
+background-color: #fff;
+border-radius: 20px;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+width: 417px;
+height: 284px;
+padding: 23px;
+}
 
-   canvas {
-       width: 100%;
-       height: auto;
-   }
+.chart-box {
+  flex: 1;
+  min-width: 430px;
+  padding: 10px;
+  text-align: center;
+  background-color: white;
+  border-radius: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 각 그래프 박스에 그림자 */
+  margin-bottom: 30px;
 
+}
 
+canvas {
+  width: 100%;
+  height: auto;
+}
 
-   #crime-graph {
-       width: 100%;
-   }
+#crime-graph{
+  width: 100%;
+}
+
+#mainRegionSelect, #subRegionSelect{
+border-radius: 5px;
+height: 24px;
+}
+
+.table-container {
+margin-left: 350px;
+margin-bottom: 20px;
+}
+.news-section table {
+text-align: center;
+}
+
+.news-section th, .news-section td {
+text-align: center !important;
+}
+table td, table th {
+padding-left: 15px; /* 왼쪽 여백 */
+padding-right: 15px; /* 오른쪽 여백 */
+padding-top: 5px;
+}

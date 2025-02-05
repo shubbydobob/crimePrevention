@@ -1,17 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link href="/css/Graphes.css" rel="stylesheet">
     <title>조건별 범죄 예측 모니터링</title>
+    <link href="/css/Graphes.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/js/graphes.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
-
 <body>
 <header>
     <h1>조건별 범죄 예측 모니터링</h1>
@@ -20,37 +15,56 @@
     <div class="charts-container">
         <!-- 2. 시간대별 범죄 발생률 -->
         <div class="chart-box">
-            <h3>현재 시간대 예상 범죄 TOP 3</h3>
+            <h3>현재 시간대 예상 범죄</h3>
             <canvas id="crimePieChart"></canvas>
         </div>
         <!-- 3. 요일별 범죄 발생률 -->
         <div class="chart-box">
-            <h3>현재 요일 예상 범죄 TOP 3</h3>
+            <h3 id="currentDay">요일별 예상 범죄</h3>
             <canvas id="dayOfWeekCrimeChart"></canvas>
         </div>
         <!-- 4. 지역별 범죄 발생률 비교 -->
         <div class="chart-box">
             <h3>2023 지역별 범죄 TOP 5 조회</h3>
             <div class="content">
-                <label for="mainRegionSelect">메인 지역 선택:</label>
-                <select id="mainRegionSelect">
-                    <option value="">메인 지역을 선택하세요</option>
-                    <!-- Thymeleaf 문법 사용 -->
-                    <th:block th:each="region : ${regions}">
-                        <option th:text="${region}" th:value="${region}"></option>
-                    </th:block>
-                </select>
-                <label for="subRegionSelect">세부 지역 선택:</label>
-                <select id="subRegionSelect">
-                    <option value="">세부 지역을 선택하세요</option>
-                </select>
+                <label for="mainRegionSelect">지역
+                    <select id="mainRegionSelect">
+                        <option th:each="region : ${regions}"
+                                th:text="${region}"
+                                th:value="${region}">
+                        </option>
+                    </select>
+                    <select id="subRegionSelect">
+                        <option value="">세부 지역을 선택하세요</option>
+                    </select>
+                </label>
                 <div id="graph-container">
                     <canvas height="400" id="crimeChart" width="400"></canvas>
                 </div>
             </div>
+            <script src="/js/Graphes.js"></script>
+        </div>
+        <!-- 범죄 보도 뉴스 -->
+        <div class="chart-box news-section">
+            <h3>📢 범죄 보도 뉴스 📢</h3>
+            <input class="form-control w-25 mb-3" id="datePicker" style="border-radius: 5px; height: 24px;" th:value="${default_date}"
+                   type="date">
+            <br><br>
+            <div class="news-section">
+                <div class="table-container" id="table-container">
+                    <span th:utext="${html_table}"></span>
+                </div>
+            </div>
         </div>
     </div>
+    <!-- Inline JavaScript with Thymeleaf inlining -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var initialArticles = [[${initial_articles}]];
+        /*]]>*/
+    </script>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
-
 </html>
