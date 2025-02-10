@@ -49,12 +49,13 @@ public class BoardController {
         logger.info("[INFO] 신고 접수 페이지 요청 - 페이지 번호: {}, 전체 조회 여부: {}", page, all);
 
         // ✅ 페이징 처리된 데이터 가져오기
-        List<Board> reports = boardService.getPagedReports(page, pageSize);
-        int totalPages = boardService.getTotalPages(pageSize);
+        List<Board> reports;
+        int totalPages;
 
         if (Boolean.TRUE.equals(all)) {
             // 전체 데이터 조회
             reports = boardService.getAllReports();
+            totalPages = 1; // 전체 조회 시 총 페이지는 1로 설정
             logger.info("[INFO] 전체 신고 데이터 조회 - 총 개수: {}", reports.size());
         } else {
             // 페이징된 데이터 조회

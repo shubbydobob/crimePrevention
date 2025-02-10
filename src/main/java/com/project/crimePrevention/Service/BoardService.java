@@ -38,13 +38,13 @@ public class BoardService {
     // 모든 신고 데이터를 조회
     public List<Board> getAllReports() {
         logger.info("모든 신고 데이터 조회 요청");
-        return boardRepository.findAll();
+        return boardRepository.findAllByOrderByCreateDateDesc();
     }
 
     // 신고 목록 페이징 처리
     public List<Board> getPagedReports(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page - 1, pageSize); // 페이지는 0부터 시작
-        Page<Board> pagedResult = boardRepository.findAll(pageable);
+        Page<Board> pagedResult = boardRepository.findAllByOrderByCreateDateDesc(pageable);
         return pagedResult.getContent();
     }
 

@@ -6,8 +6,12 @@
     <title>범죄 상황 예측 모니터링 및 신고 접수 현황 - 신고 접수 현황</title>
     <link href="/css/Board.css" rel="stylesheet">
     <script defer src="/js/Board.js"></script>
+    <script defer>
+        function goToMainPage() {
+            window.location.href = "/"; // 이동할 페이지 설정
+        }
+    </script>
 </head>
-
 <body th:attr="data-is-admin=${session.isAdmin}"> <!-- 관리자는 true, 일반 사용자는 false -->
 <h1>신고 현황</h1>
 <!-- 관리자인 경우 로그아웃 버튼 표시 -->
@@ -43,6 +47,7 @@
 </table>
 <!-- 페이징 UI -->
 <div id="pagination">
+    <button onclick="goToMainPage()" >홈으로</button>
     <button class="pagination-button" th:attr="data-page=${currentPage - 1}" th:if="${currentPage > 1}">이전</button>
     <span>페이지 <span id="currentPageText" th:text="${currentPage}"></span> / <span id="totalPagesText"
                                                                                   th:text="${totalPages}"></span></span>

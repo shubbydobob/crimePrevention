@@ -108,7 +108,7 @@ function validatePassword() {
 function loadPageData(page) {
     console.log(`[INFO] 페이지 ${page} 데이터 요청 중...`);
 
-    fetch(`/Board?page=${page}&size=${pageSize}`)
+    fetch(`/Board?page=${page}&size=${pageSize}&sort=createDate,DESC`)
         .then(response => {
             if (!response.ok) throw new Error(`[ERROR] 서버 응답 오류: ${response.status}`);
             return response.text();
@@ -153,6 +153,9 @@ function loadPageData(page) {
 function displayBoardData(posts) {
     const boardContainer = document.getElementById("board-container");
     boardContainer.innerHTML = ""; // 기존 데이터 초기화
+
+    // 최신순(내림차순) 정렬
+    posts.sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
 
     posts.forEach(post => {
         const row = document.createElement("tr");
