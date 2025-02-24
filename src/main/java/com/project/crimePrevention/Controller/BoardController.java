@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -81,29 +82,90 @@ public class BoardController {
         return "/Board/Board"; // 신고 현황 페이지 반환
     }
 
-    @PostMapping("/Board")
-    @ResponseBody
-    public String submitBoard(@ModelAttribute Board board,  // Board 엔티티를 폼 데이터로 바인딩
-                              @RequestParam(value = "captcha", required = false) String captchaInput, // 캡차 입력값
-                              @RequestParam(value = "file", required = false) MultipartFile file, // 파일 업로드
-                              HttpSession session, // HTTP 세션 객체
-                              Model model) { // 모델 객체, 뷰로 데이터를 전달
+//    @PostMapping("/Board")
+//    @ResponseBody
+//    public String submitBoard(@ModelAttribute Board board,  // Board 엔티티를 폼 데이터로 바인딩
+//                              @RequestParam(value = "captcha", required = false) String captchaInput, // 캡차 입력값
+//                              @RequestParam(value = "file", required = false) MultipartFile file, // 파일 업로드
+//                              HttpSession session, // HTTP 세션 객체
+//                              Model model) { // 모델 객체, 뷰로 데이터를 전달
+//
+//        logger.info("신고 접수 요청 - 데이터: {}", board); // 신고 접수 데이터 로깅
+//
+//        // CAPTCHA 검증
+//        String generatedCaptcha = (String) session.getAttribute("captcha");
+//        if (captchaInput == null || !captchaInput.equals(generatedCaptcha)) {
+//            logger.warn("CAPTCHA 검증 실패 - 입력된 값: {}, 생성된 값: {}", captchaInput, generatedCaptcha); // 캡차 오류 로깅
+//            model.addAttribute("error", "CAPTCHA가 일치하지 않습니다."); // 오류 메시지 설정
+//            return "Board/Board"; // 사용자에게 다시 입력하도록 반환
+//        }
+//
+//        // 파일 업로드 처리
+//        if (file != null && !file.isEmpty()) {  // 파일이 존재하고 비어 있지 않으면
+//            try {
+//                logger.info("파일 업로드 시작 - 파일명: {}", file.getOriginalFilename());
+//
+//                // 업로드 디렉토리 확인 및 생성
+//                File directory = new File(uploadDir);
+//                if (!directory.exists()) {
+//                    directory.mkdirs();
+//                }
+//
+//                // 파일 경로 및 이름 생성
+//
+//                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+//                String savePath = uploadDir + fileName; // 실제 저장 경로
+//                String filePath = "uploads/" + fileName; // 웹 접근 가능 경로
+//
+//                logger.info("업로드 디렉토리: {}", uploadDir);
+//
+//                // 서버 디렉토리에 파일 저장
+//                file.transferTo(new File(savePath));
+//                logger.info("파일 저장 성공 - 경로: {}", filePath); // 파일 저장 완료 로깅
+//
+//                // 파일 경로를 Board 객체에 저장
+//                board.setFilePath(filePath); // 파일 경로를 Board 객체의 filePath 필드에 저장
+//
+//            } catch (IOException e) {
+//                logger.error("파일 업로드 중 오류 발생 - 파일명: {}, 오류 메시지: {}", file.getOriginalFilename(), e.getMessage());
+//                model.addAttribute("error", "파일 업로드 중 오류가 발생했습니다.");
+//                return "errorPage"; // 오류가 발생하면 오류 페이지로 이동
+//            }
+//        } else {
+//            logger.info("첨부된 파일이 없습니다."); // 파일이 없으면 로그 기록
+//        }
+//
+//        // 신고 데이터 저장
+//        try {
+//            boardService.saveReport(board); // 신고 데이터 저장
+//            logger.info("신고 데이터 저장 완료 - Board ID: {}", board.getId()); // 신고 데이터 저장 완료 로깅
+//        } catch (Exception e) {
+//            logger.error("신고 데이터 저장 중 오류 발생: {}", e.getMessage());
+//            model.addAttribute("error", "신고 저장 중 오류가 발생했습니다.");
+//            return "errorPage"; // 오류 발생 시 오류 페이지로 이동
+//        }
+//
+//        logger.info("신고 접수 처리 완료"); // 신고 접수 완료 로깅
+//        return "redirect:/Board"; // 신고 처리 후 목록 페이지로 리다이렉트
+//    }
 
-        logger.info("신고 접수 요청 - 데이터: {}", board); // 신고 접수 데이터 로깅
-
-        // CAPTCHA 검증
-        String generatedCaptcha = (String) session.getAttribute("captcha");
-        if (captchaInput == null || !captchaInput.equals(generatedCaptcha)) {
-            logger.warn("CAPTCHA 검증 실패 - 입력된 값: {}, 생성된 값: {}", captchaInput, generatedCaptcha); // 캡차 오류 로깅
-            model.addAttribute("error", "CAPTCHA가 일치하지 않습니다."); // 오류 메시지 설정
-            return "Board/Board"; // 사용자에게 다시 입력하도록 반환
-        }
+    @PostMapping(value = "/Board", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> submitBoard(
+            @ModelAttribute Board board,
+            @RequestParam(value = "captcha", required = false) String captchaInput,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            HttpSession session
+    ) {
+//        // CAPTCHA 검증
+//        String generatedCaptcha = (String) session.getAttribute("captcha");
+//        if (captchaInput == null || !captchaInput.equals(generatedCaptcha)) {
+//            // JSON 형태로 에러 응답
+//            return ResponseEntity.badRequest().body(Map.of("error", "CAPTCHA가 일치하지 않습니다."));
+//        }
 
         // 파일 업로드 처리
-        if (file != null && !file.isEmpty()) {  // 파일이 존재하고 비어 있지 않으면
+        if (file != null && !file.isEmpty()) {
             try {
-                logger.info("파일 업로드 시작 - 파일명: {}", file.getOriginalFilename());
-
                 // 업로드 디렉토리 확인 및 생성
                 File directory = new File(uploadDir);
                 if (!directory.exists()) {
@@ -111,41 +173,37 @@ public class BoardController {
                 }
 
                 // 파일 경로 및 이름 생성
-
                 String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-                String savePath = uploadDir + fileName; // 실제 저장 경로
-                String filePath = "uploads/" + fileName; // 웹 접근 가능 경로
-
-                logger.info("업로드 디렉토리: {}", uploadDir);
+                String savePath = uploadDir + fileName;
+                String filePath = "uploads/" + fileName;
 
                 // 서버 디렉토리에 파일 저장
                 file.transferTo(new File(savePath));
-                logger.info("파일 저장 성공 - 경로: {}", filePath); // 파일 저장 완료 로깅
 
-                // 파일 경로를 Board 객체에 저장
-                board.setFilePath(filePath); // 파일 경로를 Board 객체의 filePath 필드에 저장
+                // Board 객체에 파일 경로 저장
+                board.setFilePath(filePath);
 
             } catch (IOException e) {
-                logger.error("파일 업로드 중 오류 발생 - 파일명: {}, 오류 메시지: {}", file.getOriginalFilename(), e.getMessage());
-                model.addAttribute("error", "파일 업로드 중 오류가 발생했습니다.");
-                return "errorPage"; // 오류가 발생하면 오류 페이지로 이동
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "파일 업로드 중 오류 발생: " + e.getMessage()));
             }
-        } else {
-            logger.info("첨부된 파일이 없습니다."); // 파일이 없으면 로그 기록
         }
 
-        // 신고 데이터 저장
+        // DB 저장
         try {
-            boardService.saveReport(board); // 신고 데이터 저장
-            logger.info("신고 데이터 저장 완료 - Board ID: {}", board.getId()); // 신고 데이터 저장 완료 로깅
+            boardService.saveReport(board);
         } catch (Exception e) {
-            logger.error("신고 데이터 저장 중 오류 발생: {}", e.getMessage());
-            model.addAttribute("error", "신고 저장 중 오류가 발생했습니다.");
-            return "errorPage"; // 오류 발생 시 오류 페이지로 이동
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "신고 저장 중 오류 발생: " + e.getMessage()));
         }
 
-        logger.info("신고 접수 처리 완료"); // 신고 접수 완료 로깅
-        return "redirect:/Board"; // 신고 처리 후 목록 페이지로 리다이렉트
+        // JSON 형태로 성공 응답
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "신고 접수 완료");
+        response.put("boardId", board.getId());
+        return ResponseEntity.ok(response);
     }
 
     // 파일 다운로드 API 추가

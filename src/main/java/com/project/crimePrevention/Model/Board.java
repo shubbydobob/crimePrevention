@@ -3,13 +3,16 @@ package com.project.crimePrevention.Model;
 import jakarta.persistence.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "Board")
-public class Board {
+public class Board implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id //기본키 설정
     @GeneratedValue(strategy = GenerationType.IDENTITY)
