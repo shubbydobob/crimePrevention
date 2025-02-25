@@ -1,6 +1,8 @@
 package com.project.crimePrevention.Controller;
 
+import com.project.crimePrevention.Kafka.ReportProducer;
 import com.project.crimePrevention.Model.Board;
+import com.project.crimePrevention.Model.Report;
 import com.project.crimePrevention.Service.AdminService;
 import com.project.crimePrevention.Service.BoardService;
 import jakarta.servlet.http.HttpSession;
@@ -14,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Controller
+@RestController
+@RequestMapping("/api/reports")
 public class BoardController {
 
     // 로거 객체 생성: BoardController에서 발생하는 로그를 기록
@@ -44,12 +46,15 @@ public class BoardController {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private ReportProducer reportProducer;
+
     @GetMapping("/Board")
     public String getBoardPage(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) Boolean all, // 전체 조회 여부
                                HttpSession session, Model model) {
         logger.info("[INFO] 신고 접수 페이지 요청 - 페이지 번호: {}, 전체 조회 여부: {}", page, all);
 
-        // ✅ 페이징 처리된 데이터 가져오기
+        // 페이징 처리된 데이터 가져오기
         List<Board> reports;
         int totalPages;
 
@@ -149,61 +154,77 @@ public class BoardController {
 //        return "redirect:/Board"; // 신고 처리 후 목록 페이지로 리다이렉트
 //    }
 
-    @PostMapping(value = "/Board", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping("/submit-direct")
+    @ResponseBody
     public ResponseEntity<?> submitBoard(
             @ModelAttribute Board board,
-            @RequestParam(value = "captcha", required = false) String captchaInput,
-            @RequestParam(value = "file", required = false) MultipartFile file,
-            HttpSession session
+            @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-//        // CAPTCHA 검증
-//        String generatedCaptcha = (String) session.getAttribute("captcha");
-//        if (captchaInput == null || !captchaInput.equals(generatedCaptcha)) {
-//            // JSON 형태로 에러 응답
-//            return ResponseEntity.badRequest().body(Map.of("error", "CAPTCHA가 일치하지 않습니다."));
-//        }
-
-        // 파일 업로드 처리
         if (file != null && !file.isEmpty()) {
             try {
-                // 업로드 디렉토리 확인 및 생성
-                File directory = new File(uploadDir);
-                if (!directory.exists()) {
-                    directory.mkdirs();
-                }
-
-                // 파일 경로 및 이름 생성
                 String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-                String savePath = uploadDir + fileName;
-                String filePath = "uploads/" + fileName;
-
-                // 서버 디렉토리에 파일 저장
-                file.transferTo(new File(savePath));
-
-                // Board 객체에 파일 경로 저장
-                board.setFilePath(filePath);
-
+                file.transferTo(new File(uploadDir + fileName));
+                board.setFilePath("uploads/" + fileName);
             } catch (IOException e) {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("error", "파일 업로드 중 오류 발생: " + e.getMessage()));
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "파일 업로드 중 오류 발생"));
             }
         }
 
-        // DB 저장
-        try {
-            boardService.saveReport(board);
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "신고 저장 중 오류 발생: " + e.getMessage()));
-        }
+        // 🚨 **동기적으로 즉시 DB 저장**
+        Board savedBoard = boardService.saveReport(board);
 
-        // JSON 형태로 성공 응답
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "신고 접수 완료");
-        response.put("boardId", board.getId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("message", "신고 접수 완료", "boardId", savedBoard.getId()));
+    }
+
+    @PostMapping("/Board")
+    public ResponseEntity<?> submitBoard(
+            @RequestBody Board board
+//            @RequestParam(value = "captcha", required = false) String captchaInput,
+//            @RequestPart(value = "file", required = false) MultipartFile file,
+//            HttpSession session
+    ) {
+//        // CAPTCHA 검증 (테스트 시 필요에 따라 제거하거나 올바른 값 전송)
+//        String generatedCaptcha = (String) session.getAttribute("captcha");
+//        if (captchaInput == null || !captchaInput.equals(generatedCaptcha)) {
+//            return ResponseEntity.badRequest().body(Map.of("error", "CAPTCHA가 일치하지 않습니다."));
+//        }
+
+//        // 파일 업로드 처리
+//        if (file != null && !file.isEmpty()) {
+//            try {
+//                File directory = new File(uploadDir);
+//                if (!directory.exists()) {
+//                    directory.mkdirs();
+//                }
+//                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+//                String savePath = uploadDir + fileName;
+//                String filePath = "uploads/" + fileName;
+//                file.transferTo(new File(savePath));
+//                board.setFilePath(filePath);
+//            } catch (IOException e) {
+//                return ResponseEntity
+//                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                        .body(Map.of("error", "파일 업로드 중 오류 발생: " + e.getMessage()));
+//            }
+//        }
+
+        // 신고 데이터 저장 (MySQL에 저장하고, @CachePut에 의해 Redis에도 저장)
+        Board savedBoard = boardService.saveReport(board);
+
+       // Board → Report 변환 후 Kafka 전송
+        Report report = convertToReport(savedBoard);
+        reportProducer.sendReport(report);
+
+        // JSON 응답 반환
+        return ResponseEntity.ok(Map.of("message", "신고 접수 완료", "boardId", savedBoard.getId()));
+    }
+
+    // Board 리스트 조회 API
+    @GetMapping("/reports")
+    @ResponseBody
+    public List<Board> getAllReports() {
+        return boardService.getAllReports();
     }
 
     // 파일 다운로드 API 추가
@@ -339,6 +360,19 @@ public class BoardController {
         logger.info("답변 삭제 요청 - 신고 ID: {}", id);
         boardService.deleteReply(id);
         return ResponseEntity.ok("답변 삭제 완료");
+    }
+    private Report convertToReport(Board board) {
+        return new Report(
+                board.getReporter(),
+                board.getPhoneNumber(),
+                board.getReportTitle(),
+                board.getContent(),
+                board.getMajorCategory(),
+                board.getMiddleCategory(),
+                board.getOccurrenceDate().toString(),
+                board.getOccurrenceTime().toString(),
+                board.getPassword()
+        );
     }
 }
 
